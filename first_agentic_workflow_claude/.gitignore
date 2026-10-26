@@ -1,0 +1,22 @@
+# Secrets
+.env
+credentials.json
+token.json
+
+# Disposable intermediates
+.tmp/*
+!.tmp/.gitkeep
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Regenerable: tools/extract_brand_bundle.py output
+brand/extracted/
+
+# Internal business source files (pricing, strategy)
+source_for_agents/
+
+# Report runs (contain research data; deliverable PDFs)
+output/

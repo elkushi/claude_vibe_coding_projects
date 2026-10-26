@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "competitor-report/report.schema.json",
+  "title": "Competitor analysis report data",
+  "description": "Everything the PDF template renders. Every factual statement is a claim with at least one source id. Example: samples/sample_report.json.",
+  "type": "object",
+  "required": ["meta", "sources", "executive_summary", "market_overview", "competitors", "long_tail", "matrix", "opportunities", "recommendations", "methodology"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "source_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "claim": {
+      "type": "object",
+      "required": ["text", "source_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {"type": "string", "minLength": 3},
+        "source_ids": {"$ref": "#/$defs/source_ids"}
+      }
+    },
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+    "stat": {
+      "type": "object",
+      "required": ["value", "label", "source_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "string"},
+        "label": {"type": "string"},
+        "source_ids": {"$ref": "#/$defs/source_ids"}
+      }
+    },
+    "titled_claim": {
+      "type": "object",
+      "required": ["title", "text", "source_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {"type": "string"},
+        "text": {"type": "string"},
+        "source_ids": {"$ref": "#/$defs/source_ids"}
+      }
+    },
+    "score": {"type": "integer", "minimum": 1, "maximum": 5},
+    "channels": {
+      "type": "object",
+      "required": ["sms", "otp", "masking", "api", "whatsapp", "viber", "telegram", "messenger", "crm"],
+      "additionalProperties": false,
+      "properties": {
+        "sms": {"type": "boolean"}, "otp": {"type": "boolean"}, "masking": {"type": "boolean"},
+        "api": {"type": "boolean"}, "whatsapp": {"type": "boolean"}, "viber": {"type": "boolean"},
+        "telegram": {"type": "boolean"}, "messenger": {"type": "boolean"}, "crm": {"type": "boolean"}
+      }
+    }
+  },
+
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["title", "subtitle", "market", "region", "run_date", "prepared_for", "prepared_by", "confidentiality", "version", "is_sample"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {"type": "string"}, "subtitle": {"type": "string"},
+        "market": {"type": "string"}, "region": {"type": "string"},
+        "run_date": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "prepared_for": {"type": "string"}, "prepared_by": {"type": "string"},
+        "confidentiality": {"type": "string"}, "version": {"type": "string"},
+        "is_sample": {"type": "boolean"}
+      }
+    },
+
+    "us": {
+      "type": "object",
+      "required": ["name", "licence", "channels", "source_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"},
+        "licence": {"type": "string"},
+        "channels": {"$ref": "#/$defs/channels"},
+        "pagespeed_mobile": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+        "source_ids": {"$ref": "#/$defs/source_ids"}
+      }
+    },
+
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "url", "title", "publisher", "accessed"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^(INT[0-9]*|S[0-9]+)$"},
+          "url": {"type": ["string", "null"], "pattern": "^https?://"},
+          "title": {"type": "string", "minLength": 3},
+          "publisher": {"type": "string", "minLength": 2},
+          "accessed": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+          "published": {"type": "string", "description": "Publication date if shown on the page (free text, e.g. '2026-08-03' or 'Aug 2026')."},
+          "note": {"type": "string", "description": "Internal note, not rendered (e.g. 'search snippet only')."}
+        }
+      }
+    },
+
+    "executive_summary": {
+      "type": "object",
+      "required": ["headline", "key_numbers", "findings", "bottom_line"],
+      "additionalProperties": false,
+      "properties": {
+        "headline": {"type": "string"},
+        "key_numbers": {"type": "array", "items": {"$ref": "#/$defs/stat"}, "minItems": 3, "maxItems": 4},
+        "findings": {"$ref": "#/$defs/claims"},
+        "bottom_line": {"type": "string"}
+      }
+    },
+
+    "market_overview": {
+      "type": "object",
+      "required": ["intro", "stats", "regulation"],
+      "additionalProperties": false,
+      "properties": {
+        "intro": {"$ref": "#/$defs/claims"},
+        "stats": {"type": "array", "items": {"$ref": "#/$defs/stat"}, "minItems": 3, "maxItems": 3},
+        "operators": {
+          "type": "array",
+          "items": {"type": "object", "required": ["name", "value"], "additionalProperties": false,
+                    "properties": {"name": {"type": "string"}, "value": {"type": "number"}}}
+        },
+        "operators_unit": {"type": "string"},
+        "operators_source_ids": {"$ref": "#/$defs/source_ids"},
+        "regulation": {"type": "array", "items": {"$ref": "#/$defs/titled_claim"}},
+        "ott": {"$ref": "#/$defs/claims"}
+      }
+    },
+
+    "competitors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "tier", "website", "one_liner", "threat", "positioning", "segments", "named_clients",
+                     "channels", "features", "pricing", "licence", "web_seo", "content_social", "reviews", "recent_moves",
+                     "strengths", "weaknesses", "where_we_win"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "name": {"type": "string"},
+          "type": {"enum": ["direct", "indirect"]},
+          "tier": {"type": "string"},
+          "website": {"type": "string"},
+          "one_liner": {"type": "string"},
+          "threat": {"enum": ["high", "medium", "low"]},
+          "positioning": {
+            "type": "object", "required": ["claims"], "additionalProperties": false,
+            "properties": {
+              "quote": {"type": "string"},
+              "quote_source_ids": {"$ref": "#/$defs/source_ids"},
+              "claims": {"$ref": "#/$defs/claims"}
+            }
+          },
+          "segments": {"$ref": "#/$defs/claims"},
+          "named_clients": {"$ref": "#/$defs/claims"},
+          "channels": {"$ref": "#/$defs/channels"},
+          "features": {"$ref": "#/$defs/claims"},
+          "pricing": {
+            "type": "object", "required": ["model", "claims"], "additionalProperties": false,
+            "properties": {"model": {"type": "string"}, "claims": {"$ref": "#/$defs/claims"}}
+          },
+          "licence": {
+            "type": "object", "required": ["status", "claims"], "additionalProperties": false,
+            "properties": {"status": {"type": "string"}, "claims": {"$ref": "#/$defs/claims"}}
+          },
+          "web_seo": {
+            "type": "object", "required": ["pagespeed_mobile", "pagespeed_desktop", "claims"], "additionalProperties": false,
+            "properties": {
+              "pagespeed_mobile": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+              "pagespeed_desktop": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+              "claims": {"$ref": "#/$defs/claims"}
+            }
+          },
+          "content_social": {"$ref": "#/$defs/claims"},
+          "reviews": {
+            "type": "object", "required": ["praise", "complaints"], "additionalProperties": false,
+            "properties": {"praise": {"$ref": "#/$defs/claims"}, "complaints": {"$ref": "#/$defs/claims"}}
+          },
+          "recent_moves": {
+            "type": "array",
+            "items": {"type": "object", "required": ["date", "text", "source_ids"], "additionalProperties": false,
+                      "properties": {"date": {"type": "string"}, "text": {"type": "string"}, "source_ids": {"$ref": "#/$defs/source_ids"}}}
+          },
+          "strengths": {"$ref": "#/$defs/claims"},
+          "weaknesses": {"$ref": "#/$defs/claims"},
+          "where_we_win": {"$ref": "#/$defs/claims"}
+        }
+      }
+    },
+
+    "long_tail": {
+      "type": "array",
+      "items": {"type": "object", "required": ["name", "type", "note", "source_ids"], "additionalProperties": false,
+                "properties": {"name": {"type": "string"}, "type": {"type": "string"}, "note": {"type": "string"},
+                               "source_ids": {"$ref": "#/$defs/source_ids"}}}
+    },
+
+    "matrix": {
+      "type": "object",
+      "required": ["dimensions", "rows", "scale_note"],
+      "additionalProperties": false,
+      "properties": {
+        "dimensions": {
+          "type": "array", "minItems": 3,
+          "items": {"type": "object", "required": ["key", "label"], "additionalProperties": false,
+                    "properties": {"key": {"type": "string"}, "label": {"type": "string"}}}
+        },
+        "rows": {
+          "type": "array", "minItems": 2,
+          "items": {"type": "object", "required": ["name", "scores"], "additionalProperties": false,
+                    "properties": {"name": {"type": "string"}, "is_us": {"type": "boolean"},
+                                   "scores": {"type": "object", "additionalProperties": {"$ref": "#/$defs/score"}}}}
+        },
+        "scale_note": {"type": "string"},
+        "positioning": {
+          "type": "object", "required": ["x_label", "y_label", "points"], "additionalProperties": false,
+          "properties": {
+            "x_label": {"type": "string"}, "y_label": {"type": "string"},
+            "points": {"type": "array", "items": {"type": "object", "required": ["name", "x", "y"], "additionalProperties": false,
+                       "properties": {"name": {"type": "string"}, "x": {"type": "number"}, "y": {"type": "number"}, "is_us": {"type": "boolean"}}}}
+          }
+        }
+      }
+    },
+
+    "opportunities": {
+      "type": "object",
+      "required": ["working_for_them", "weak_spots", "gaps"],
+      "additionalProperties": false,
+      "properties": {
+        "working_for_them": {"$ref": "#/$defs/claims"},
+        "weak_spots": {"$ref": "#/$defs/claims"},
+        "gaps": {"type": "array", "items": {"$ref": "#/$defs/titled_claim"}}
+      }
+    },
+
+    "recommendations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "description", "impact", "effort", "horizon", "source_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^R[0-9]+$"},
+          "title": {"type": "string"}, "description": {"type": "string"},
+          "impact": {"$ref": "#/$defs/score"}, "effort": {"$ref": "#/$defs/score"},
+          "horizon": {"type": "string"},
+          "source_ids": {"$ref": "#/$defs/source_ids"}
+        }
+      }
+    },
+
+    "methodology": {
+      "type": "object",
+      "required": ["text", "limits"],
+      "additionalProperties": false,
+      "properties": {"text": {"type": "string"}, "limits": {"type": "array", "items": {"type": "string"}}}
+    }
+  }
+}

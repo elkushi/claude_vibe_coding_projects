@@ -1,0 +1,13 @@
+# Secrets
+.env
+credentials.json
+token.json
+
+# Disposable intermediates
+.tmp/*
+!.tmp/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/

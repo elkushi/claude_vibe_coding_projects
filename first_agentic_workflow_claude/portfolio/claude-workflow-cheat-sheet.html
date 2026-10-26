@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Workflow Cheat Sheet</title>
+<style>
+  :root {
+    --ink: #14213d; --ink-2: #3d4a66; --ink-3: #6b7895;
+    --line: #dbe2f0; --tint: #f2f6fd; --bg: #fff;
+    --accent: #2f5fd0; --deep: #173c99; --soft: #dfe8fb;
+    --good: #1f8a52; --good-soft: #e3f4ea;
+    --warn: #a86d00; --warn-soft: #fbf1dc;
+    --bad: #b83a3a; --bad-soft: #fbe6e6;
+    --code-bg: #0f1a33; --code-ink: #e6ecfa; --ph: #ffd479;
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--font); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px 40px; }
+  h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+  h2 { font-size: 18px; color: var(--deep); display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
+  h2 .no { background: var(--accent); color: #fff; font-size: 12px; border-radius: 6px; padding: 2px 7px; }
+  h3 { font-size: 14px; margin: 0 0 6px; }
+  p { margin: 0 0 8px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--tint); color: var(--deep); padding: 1px 5px; border-radius: 4px; }
+  .muted { color: var(--ink-3); }
+  section { padding: 22px 0; border-bottom: 1px solid var(--line); }
+
+  /* Header */
+  header { background: linear-gradient(135deg, #2f5fd0, #132f7a); color: #fff; padding: 26px 0 22px; }
+  header h1 { font-size: 28px; font-weight: 800; }
+  header p { color: #dbe5fc; margin: 6px 0 0; max-width: 80ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chips span { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 99px; padding: 2px 10px; font-size: 12px; }
+
+  /* Grids and cards */
+  .g2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff; }
+  .card.tint { background: var(--tint); border-color: transparent; }
+  .card ul, .card ol { margin: 0; padding-left: 18px; }
+  .card li { margin: 2px 0; }
+  .tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 4px; padding: 1px 6px; }
+  .tag.cp { background: var(--warn-soft); color: var(--warn); }
+  .tag.ok { background: var(--good-soft); color: var(--good); }
+  .tag.no { background: var(--bad-soft); color: var(--bad); }
+
+  /* Diagrams */
+  .diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: #fcfdff; }
+  .diagram svg { display: block; width: 100%; min-width: 760px; height: auto; }
+  .diagram.sm svg { min-width: 360px; }
+  svg text { font-family: var(--font); }
+
+  /* Phase steps */
+  .phase { border-left: 4px solid var(--accent); }
+  .phase .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .phase .head b { font-size: 14px; }
+  .phase .out { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
+  .phase .out b { color: var(--ink); }
+
+  /* Prompts */
+  .prompt { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; break-inside: avoid; display: flex; flex-direction: column; }
+  .prompt .ph-head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--tint); }
+  .prompt .n { flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff; font-weight: 700; font-size: 12px; display: grid; place-items: center; }
+  .prompt .t { flex: 1; font-weight: 700; font-size: 13px; }
+  .prompt .t span { font-weight: 400; color: var(--ink-3); font-size: 12px; margin-left: 6px; }
+  .copy { flex: none; font: 600 11.5px var(--font); color: var(--deep); background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  .copy:hover { border-color: var(--accent); }
+  pre { margin: 0; padding: 10px 12px; background: var(--code-bg); color: var(--code-ink); font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; flex: 1; }
+  .ph { color: var(--ph); }
+
+  /* Tables */
+  .tbl { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); background: var(--tint); }
+  td:first-child { white-space: nowrap; }
+  kbd { font-family: var(--mono); font-size: 11.5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: #fff; }
+
+  .tree { font: 12px/1.55 var(--mono); background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 12px 14px; white-space: pre; overflow-x: auto; margin: 0; }
+  .tree i { color: #8fa3cf; font-style: normal; }
+
+  @media screen and (max-width: 860px) {
+    .g3, .g4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media screen and (max-width: 560px) {
+    .g2, .g3, .g4 { grid-template-columns: 1fr; }
+    header h1 { font-size: 23px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 11mm 10mm; }
+    body { font-size: 11.5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .wrap { max-width: none; padding: 0; }
+    header { padding: 16px 14px 14px; }
+    header .wrap { padding: 0; }
+    section { padding: 12px 0; }
+    .copy { display: none; }
+    pre { font-size: 10.2px; }
+    .card, .prompt, .diagram, table, tr { break-inside: avoid; }
+    h2 { break-after: avoid; }
+    .diagram, .tbl, .tree { overflow: visible; }
+    .diagram svg { min-width: 0; }
+    .tree { font-size: 9.6px; white-space: pre-wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Claude Workflow Cheat Sheet</h1>
+    <p>Build a repeatable, evidence-backed AI workflow in Claude Code from an empty folder: the loop, the phases, the prompts, the commands and the traps. Written from the competitor-analysis build (9 competitors, 192 sources, ~412 cited claims, validator-gated PDF).</p>
+    <div class="chips"><span>WAT = Workflows · Agents · Tools</span><span>Plan → Build → Check → Approve</span><span>Every claim cites a source</span><span>Secrets only in .env</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 1 · CORE IDEA -->
+<section>
+  <h2><span class="no">1</span>The core idea in one picture</h2>
+  <div class="g2">
+    <div class="diagram sm">
+      <svg viewBox="0 0 440 250" role="img" aria-label="WAT architecture: you, workflow, agent, tools, output">
+        <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f5fd0"/></marker></defs>
+        <rect x="160" y="8" width="120" height="38" rx="9" fill="#14213d"/><text x="220" y="32" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">You (approve)</text>
+        <rect x="14" y="96" width="120" height="56" rx="9" fill="#dfe8fb" stroke="#2f5fd0"/><text x="74" y="118" fill="#173c99" font-size="13" font-weight="700" text-anchor="middle">Workflow</text><text x="74" y="137" fill="#3d4a66" font-size="11" text-anchor="middle">workflows/*.md · SOP</text>
+        <rect x="160" y="96" width="120" height="56" rx="9" fill="#2f5fd0"/><text x="220" y="118" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">Agent (Claude)</text><text x="220" y="137" fill="#dbe5fc" font-size="11" text-anchor="middle">decides · orchestrates</text>
+        <rect x="306" y="96" width="120" height="56" rx="9" fill="#dfe8fb" stroke="#2f5fd0"/><text x="366" y="118" fill="#173c99" font-size="13" font-weight="700" text-anchor="middle">Tools</text><text x="366" y="137" fill="#3d4a66" font-size="11" text-anchor="middle">tools/*.py · execute</text>
+        <rect x="160" y="200" width="120" height="40" rx="9" fill="#e3f4ea" stroke="#1f8a52"/><text x="220" y="225" fill="#1f8a52" font-size="13" font-weight="700" text-anchor="middle">Output (PDF…)</text>
+        <path d="M134 124H156" stroke="#2f5fd0" stroke-width="2" marker-end="url(#a1)"/><text x="145" y="116" font-size="9.5" fill="#6b7895" text-anchor="middle">reads</text>
+        <path d="M280 124H302" stroke="#2f5fd0" stroke-width="2" marker-end="url(#a1)"/><text x="291" y="116" font-size="9.5" fill="#6b7895" text-anchor="middle">runs</text>
+        <path d="M220 46V92" stroke="#2f5fd0" stroke-width="2" marker-end="url(#a1)"/><text x="226" y="74" font-size="9.5" fill="#6b7895">intent + checkpoints</text>
+        <path d="M366 152V220H284" stroke="#2f5fd0" stroke-width="2" fill="none" marker-end="url(#a1)"/>
+        <path d="M74 152V180" stroke="#a86d00" stroke-width="2" stroke-dasharray="4 3"/><text x="80" y="178" font-size="9.5" fill="#a86d00">lessons learned fed back</text>
+      </svg>
+    </div>
+    <div class="card tint">
+      <h3>Why split the work</h3>
+      <p>If each step is 90% reliable, five AI-only steps succeed 59% of the time. So the AI only <b>decides</b>; repeatable work runs as <b>code</b>; you <b>approve</b> at checkpoints.</p>
+      <ul>
+        <li><b>Workflow</b>: plain-language SOP: goal, inputs, tools, outputs, edge cases, lessons learned.</li>
+        <li><b>Agent</b>: reads the SOP, runs tools in order, fixes failures, asks when unsure.</li>
+        <li><b>Tools</b>: deterministic Python scripts (API calls, merges, validation, rendering).</li>
+        <li><b>Gate</b>: a validator blocks the output if any rule is broken.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · ALGORITHM -->
+<section>
+  <h2><span class="no">2</span>The build algorithm, from zero</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 1080 300" role="img" aria-label="Flow: setup, plan, inputs, design, tools, run, polish, re-run, with checkpoints">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f5fd0"/></marker>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a86d00"/></marker>
+      </defs>
+      <!-- row 1: build -->
+      <text x="10" y="22" font-size="11" font-weight="700" fill="#6b7895" letter-spacing="1.5">BUILD ONCE</text>
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="10" y="34" width="118" height="62" rx="10" fill="#14213d"/><text x="69" y="60" fill="#fff" font-weight="700">0 · Rules</text><text x="69" y="79" fill="#c9d3ea" font-size="10.5">CLAUDE.md</text>
+        <rect x="148" y="34" width="118" height="62" rx="10" fill="#2f5fd0"/><text x="207" y="60" fill="#fff" font-weight="700">1 · Setup</text><text x="207" y="79" fill="#dbe5fc" font-size="10.5">folders · venv · .env</text>
+        <rect x="286" y="34" width="118" height="62" rx="10" fill="#2f5fd0"/><text x="345" y="60" fill="#fff" font-weight="700">2 · Plan</text><text x="345" y="79" fill="#dbe5fc" font-size="10.5">questions → plan</text>
+        <rect x="424" y="34" width="118" height="62" rx="10" fill="#2f5fd0"/><text x="483" y="60" fill="#fff" font-weight="700">3 · Inputs</text><text x="483" y="79" fill="#dbe5fc" font-size="10.5">profile · brand · files</text>
+        <rect x="562" y="34" width="118" height="62" rx="10" fill="#2f5fd0"/><text x="621" y="60" fill="#fff" font-weight="700">4 · Design</text><text x="621" y="79" fill="#dbe5fc" font-size="10.5">placeholder PDF</text>
+        <rect x="700" y="34" width="118" height="62" rx="10" fill="#2f5fd0"/><text x="759" y="60" fill="#fff" font-weight="700">5 · Tools</text><text x="759" y="79" fill="#dbe5fc" font-size="10.5">schema · validator · SOP</text>
+      </g>
+      <g stroke="#2f5fd0" stroke-width="2" marker-end="url(#a2)"><path d="M128 65H144"/><path d="M266 65H282"/><path d="M404 65H420"/><path d="M542 65H558"/><path d="M680 65H696"/></g>
+      <!-- approvals row1 -->
+      <g font-size="10" fill="#a86d00" text-anchor="middle" font-weight="700">
+        <rect x="300" y="104" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="345" y="118">you approve</text>
+        <rect x="576" y="104" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="621" y="118">you approve</text>
+        <rect x="714" y="104" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="759" y="118">test on own site</text>
+      </g>
+      <!-- connector to run -->
+      <path d="M818 65H860V180H130" stroke="#2f5fd0" stroke-width="2" fill="none" marker-end="url(#a2)"/>
+      <!-- row 2: every run -->
+      <text x="10" y="168" font-size="11" font-weight="700" fill="#6b7895" letter-spacing="1.5">EVERY RUN</text>
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="134" y="150" width="128" height="62" rx="10" fill="#dfe8fb" stroke="#2f5fd0"/><text x="198" y="176" fill="#173c99" font-weight="700">A · Choose</text><text x="198" y="195" fill="#3d4a66" font-size="10.5">propose competitors</text>
+        <rect x="292" y="150" width="128" height="62" rx="10" fill="#dfe8fb" stroke="#2f5fd0"/><text x="356" y="176" fill="#173c99" font-weight="700">B · Research</text><text x="356" y="195" fill="#3d4a66" font-size="10.5">parallel sub-agents</text>
+        <rect x="450" y="150" width="128" height="62" rx="10" fill="#dfe8fb" stroke="#2f5fd0"/><text x="514" y="176" fill="#173c99" font-weight="700">Merge + Validate</text><text x="514" y="195" fill="#3d4a66" font-size="10.5">dedupe · renumber · gate</text>
+        <rect x="608" y="150" width="128" height="62" rx="10" fill="#dfe8fb" stroke="#2f5fd0"/><text x="672" y="176" fill="#173c99" font-weight="700">C · Analyse</text><text x="672" y="195" fill="#3d4a66" font-size="10.5">matrix · gaps · recs</text>
+        <rect x="766" y="150" width="128" height="62" rx="10" fill="#dfe8fb" stroke="#2f5fd0"/><text x="830" y="176" fill="#173c99" font-weight="700">D · Render + QA</text><text x="830" y="195" fill="#3d4a66" font-size="10.5">PDF · fonts · pages</text>
+        <rect x="924" y="150" width="146" height="62" rx="10" fill="#e3f4ea" stroke="#1f8a52"/><text x="997" y="176" fill="#1f8a52" font-weight="700">Deliver + learn</text><text x="997" y="195" fill="#3d4a66" font-size="10.5">update SOP lessons</text>
+      </g>
+      <g stroke="#2f5fd0" stroke-width="2" marker-end="url(#a2)"><path d="M262 181H288"/><path d="M420 181H446"/><path d="M578 181H604"/><path d="M736 181H762"/><path d="M894 181H920"/></g>
+      <!-- checkpoints -->
+      <g font-size="10" fill="#a86d00" text-anchor="middle" font-weight="700">
+        <rect x="153" y="220" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="198" y="234">⏸ Checkpoint A</text>
+        <rect x="311" y="220" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="356" y="234">⏸ Checkpoint B</text>
+        <rect x="627" y="220" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="672" y="234">⏸ Checkpoint C</text>
+        <rect x="785" y="220" width="90" height="20" rx="10" fill="#fbf1dc"/><text x="830" y="234">⏸ Checkpoint D</text>
+      </g>
+      <!-- fail loop -->
+      <path d="M514 212V270H372V216" stroke="#b83a3a" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#a2)"/>
+      <text x="443" y="288" font-size="10.5" fill="#b83a3a" text-anchor="middle">FAIL → fix data or re-research, run again</text>
+      <!-- re-run loop -->
+      <path d="M997 212V270H620" stroke="#a86d00" stroke-width="1.8" fill="none" stroke-dasharray="5 3"/>
+      <text x="808" y="288" font-size="10.5" fill="#a86d00" text-anchor="middle">next quarter: same SOP, new data → start again at A</text>
+    </svg>
+  </div>
+  <p class="muted" style="margin-top:8px;">Rule of thumb: <b>plan before code, design before research, validate before render, approve before the next phase.</b></p>
+</section>
+
+<!-- 3 · STEPS -->
+<section>
+  <h2><span class="no">3</span>Step-by-step checklist</h2>
+  <div class="g3">
+    <div class="card phase"><div class="head"><b>0 · Rules</b><span class="tag ok">5 min</span></div>
+      <ul><li>Empty folder, <code>git init</code></li><li>Write <code>CLAUDE.md</code> (prompt 0)</li><li>Decide where deliverables live</li></ul>
+      <div class="out"><b>Out:</b> rules loaded into every session</div></div>
+    <div class="card phase"><div class="head"><b>1 · Setup</b><span class="tag ok">10 min</span></div>
+      <ul><li><code>tools/ workflows/ .tmp/</code></li><li><code>.env</code> + <code>.env.example</code>, <code>.gitignore</code></li><li>venv + <code>requirements.txt</code></li></ul>
+      <div class="out"><b>Out:</b> working skeleton, no secrets in git</div></div>
+    <div class="card phase"><div class="head"><b>2 · Plan</b><span class="tag cp">approve</span></div>
+      <ul><li>Switch to plan mode (<kbd>Shift</kbd>+<kbd>Tab</kbd>)</li><li>Describe goal, inputs, output, structure</li><li>Answer all questions in one batch</li></ul>
+      <div class="out"><b>Out:</b> phased plan with checkpoints</div></div>
+    <div class="card phase"><div class="head"><b>3 · Inputs</b><span class="tag cp">check</span></div>
+      <ul><li><code>business-profile.md</code></li><li><code>brand/</code> → <code>brand.json</code> (colours, fonts, voice)</li><li>Internal files: verify every claim</li></ul>
+      <div class="out"><b>Out:</b> trusted inputs, conflicts resolved by you</div></div>
+    <div class="card phase"><div class="head"><b>4 · Design</b><span class="tag cp">approve</span></div>
+      <ul><li>Template with placeholder data</li><li>Every section type rendered once</li><li>Fonts embedded, no blank pages</li></ul>
+      <div class="out"><b>Out:</b> sample PDF you like</div></div>
+    <div class="card phase"><div class="head"><b>5 · Tools</b><span class="tag cp">test</span></div>
+      <ul><li>JSON schema: claim = text + source_ids</li><li>Validator, scrapers, speed, merge, charts, render</li><li>SOP in <code>workflows/</code></li></ul>
+      <div class="out"><b>Out:</b> each tool tested on your own site</div></div>
+    <div class="card phase"><div class="head"><b>A · Choose</b><span class="tag cp">checkpoint</span></div>
+      <ul><li>Claude proposes, with rationale + source</li><li>Search for new entrants</li><li>Others → "rest of market" table</li></ul>
+      <div class="out"><b>Out:</b> approved list</div></div>
+    <div class="card phase"><div class="head"><b>B · Research</b><span class="tag cp">checkpoint</span></div>
+      <ul><li>1 sub-agent per company, same brief</li><li>Local ids L1… → merge renumbers to S…</li><li>Validator with <code>--check-links</code> until PASS</li></ul>
+      <div class="out"><b>Out:</b> evidence base you reviewed</div></div>
+    <div class="card phase"><div class="head"><b>C · Analyse → D · Render</b><span class="tag cp">checkpoint</span></div>
+      <ul><li>Matrix 1–5, positioning, gaps, recs (impact × effort)</li><li>Executive summary <b>last</b></li><li>Render, view every page as image, sign off</li></ul>
+      <div class="out"><b>Out:</b> final PDF + lessons in SOP</div></div>
+  </div>
+</section>
+
+<!-- 4 · PROMPTS -->
+<section class="page-break">
+  <h2><span class="no">4</span>Build prompts (send one at a time)</h2>
+  <p class="muted">Replace the <span style="background:var(--code-bg);color:var(--ph);padding:0 5px;border-radius:4px;font-family:var(--mono);">[yellow parts]</span>. Review each result before sending the next.</p>
+  <div class="g2">
+
+    <div class="prompt"><div class="ph-head"><div class="n">0</div><div class="t">Project rules<span>save as CLAUDE.md</span></div><button class="copy" type="button">Copy</button></div>
+<pre>You work inside the WAT framework (Workflows, Agents, Tools).
+- Workflows: Markdown SOPs in workflows/ (objective, inputs, tools, outputs, edge cases).
+- Agent (you): read the workflow, run tools in order, handle failures, ask when unsure.
+- Tools: Python scripts in tools/ for deterministic work. Secrets only in .env.
+Rules:
+1. Look for an existing tool before writing a new one.
+2. On failure: read the full error, fix the tool, re-test, record the lesson in the
+   workflow. Ask me before re-running anything that costs money.
+3. Don't overwrite a workflow without asking me.
+4. Temp files in .tmp/ (disposable). Final outputs go to <span class="ph">[where]</span>.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">1</div><div class="t">Initialise<span>first message</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I just added a CLAUDE.md that explains how I want you to work in this project.
+Initialise the project and set everything up (folders, .gitignore, .env.example,
+requirements.txt, a Python virtual environment). Ask me any questions first.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">2</div><div class="t">Describe + plan<span>plan mode</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I want to build a REPEATABLE <span class="ph">[competitor analysis]</span> workflow.
+The output of each run is a fully branded <span class="ph">[PDF report]</span>.
+Inputs: business info (save to business-profile.md), brand guidelines + logo.
+The workflow should: <span class="ph">[step 1 … step n]</span>.
+Every claim must cite a source URL and access date.
+Structure: <span class="ph">[Cover → Summary → … → Sources]</span>
+Ask me ALL clarifying questions in one batch first. Then give me a plan with
+phases, files/folders, libraries and why, and a checkpoint after each phase.
+Don't write code until I approve.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">3</div><div class="t">Business profile</div><button class="copy" type="button">Copy</button></div>
+<pre>Here is my business profile. Save it to business-profile.md exactly as written.
+Then tell me what in it changes your plan, and list anything that looks
+inconsistent or needs a source.
+<span class="ph">[paste profile]</span></pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">4</div><div class="t">Brand</div><button class="copy" type="button">Copy</button></div>
+<pre>I put my brand guidelines, logo and fonts in brand/. Extract colours, fonts,
+type scale, logo rules, motif and tone of voice into brand/brand.json.
+Show me what you found and flag any rule that conflicts with this report
+before you use it.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">5</div><div class="t">Design first</div><button class="copy" type="button">Copy</button></div>
+<pre>Build the branded template now with placeholder data only, no research yet.
+Cover every section type once. Render a sample PDF, check the brand fonts are
+embedded and there are no blank pages, and show me the result.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">6</div><div class="t">Verify internal files</div><button class="copy" type="button">Copy</button></div>
+<pre>I added business files in <span class="ph">[folder]</span>. Some info may be outdated, so check
+everything. Mark each external claim confirmed / outdated / contradicted /
+unverifiable, with the source link. For internal facts you can't check online,
+list the conflicts and ask me. Don't update the profile until I answer.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">7</div><div class="t">Tools + SOP</div><button class="copy" type="button">Copy</button></div>
+<pre>Build the tools and the workflow SOP:
+- a JSON schema (every claim carries source ids),
+- a validator that blocks rendering on unsourced claims, dead links, placeholders,
+- <span class="ph">[website snapshot, PageSpeed, …]</span> tools,
+- workflows/<span class="ph">[name]</span>.md with steps, checkpoints, evidence rules, edge cases.
+Test every tool on my own website first and show me the results.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">8</div><div class="t">Choose competitors<span>Checkpoint A</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Start the first run. Propose <span class="ph">[5–8]</span> direct and <span class="ph">[2–3]</span> indirect competitors in
+<span class="ph">[market]</span>, each with a one-line rationale and a source. Search for new entrants.
+Put everyone else in a short "rest of the market" table. Wait for my approval.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">9</div><div class="t">Parallel research<span>Checkpoint B</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Research each approved competitor in parallel, one sub-agent per company, same
+written brief: only cite pages actually opened, label self-claims as claims,
+label inference, say "not publicly disclosed" when there is no evidence.
+Run the website and speed tools on every site. Merge, run the validator until it
+passes, then show me the findings before writing any analysis.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">10</div><div class="t">Analysis<span>Checkpoint C</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Write the analysis from the approved evidence only: matrix 1–5, positioning map,
+what works for competitors, their weak spots, market gaps, ranked recommendations
+with impact, effort and timeframe. Executive summary last. Every claim cites its
+evidence. Be honest about my weaknesses; readers are <span class="ph">[investors]</span>.</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">11</div><div class="t">Polish + sign off<span>Checkpoint D</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Render the final PDF. Keep it to <span class="ph">[30–50]</span> pages, fonts embedded, no blank pages,
+every section filled; look at every page as an image before handing it over.
+Then add what we learned in this run to the workflow's "lessons learned".</pre></div>
+
+    <div class="prompt"><div class="ph-head"><div class="n">12</div><div class="t">Re-run<span>next quarter</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Run workflows/<span class="ph">[name]</span>.md for <span class="ph">[month year]</span>. Re-check the facts in the latest
+source check, compare with the previous run in output/, and add a short
+"what changed since last time" section. Stop at every checkpoint as usual.</pre></div>
+
+  </div>
+</section>
+
+<!-- 5 · UTILITY PROMPTS -->
+<section>
+  <h2><span class="no">5</span>Everyday steering prompts</h2>
+  <div class="g3">
+    <div class="prompt"><div class="ph-head"><div class="t">Where are we?</div><button class="copy" type="button">Copy</button></div>
+<pre>What's done, what's next, and what do you need from me? Give me the file paths.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Delegate a choice</div><button class="copy" type="button">Copy</button></div>
+<pre>You take the decision. State what you chose and why in one line, then continue.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Ask again</div><button class="copy" type="button">Copy</button></div>
+<pre>Ask me the questions again, one batch, with your recommended answer first.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Fix an error</div><button class="copy" type="button">Copy</button></div>
+<pre>This failed: <span class="ph">[paste error]</span>. Find the root cause, fix the tool, re-test,
+and add the lesson to the workflow. Don't re-run paid calls without asking.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Fact-check</div><button class="copy" type="button">Copy</button></div>
+<pre>Re-open the source for every claim in <span class="ph">[section]</span>. Remove or rewrite any
+claim the page doesn't support, and list what you changed.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Too long</div><button class="copy" type="button">Copy</button></div>
+<pre>The PDF is <span class="ph">[61]</span> pages; target <span class="ph">[45]</span>. Propose layout changes first
+(columns, caps, spacing) without cutting evidence. Wait for my OK.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Visual QA</div><button class="copy" type="button">Copy</button></div>
+<pre>Render every page as an image, look at each one, and list layout problems
+(blank pages, overflow, orphaned headings, broken tables) before fixing them.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">After /compact</div><button class="copy" type="button">Copy</button></div>
+<pre>Read the plan file and the workflow, tell me where we stopped, then continue.</pre></div>
+    <div class="prompt"><div class="ph-head"><div class="t">Proof case</div><button class="copy" type="button">Copy</button></div>
+<pre>Build an HTML case study of this workflow: architecture, algorithm chart,
+results, and the prompts to rebuild it from zero. No confidential data.</pre></div>
+  </div>
+</section>
+
+<!-- 6 · DATA FLOW -->
+<section class="page-break">
+  <h2><span class="no">6</span>Evidence pipeline (how claims stay honest)</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 1080 200" role="img" aria-label="Sub-agents to competitor JSON to merge to report.json to validator to render">
+      <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f5fd0"/></marker></defs>
+      <g font-size="11" text-anchor="middle">
+        <rect x="10" y="14" width="140" height="30" rx="7" fill="#dfe8fb" stroke="#2f5fd0"/><text x="80" y="33" fill="#173c99" font-weight="700">agent: company 1</text>
+        <rect x="10" y="54" width="140" height="30" rx="7" fill="#dfe8fb" stroke="#2f5fd0"/><text x="80" y="73" fill="#173c99" font-weight="700">agent: company 2</text>
+        <rect x="10" y="94" width="140" height="30" rx="7" fill="#dfe8fb" stroke="#2f5fd0"/><text x="80" y="113" fill="#173c99" font-weight="700">agent: …</text>
+        <rect x="10" y="134" width="140" height="30" rx="7" fill="#f2f6fd" stroke="#6b7895"/><text x="80" y="153" fill="#3d4a66" font-weight="700">tools: SEO · speed</text>
+      </g>
+      <g stroke="#2f5fd0" stroke-width="1.6" fill="none" marker-end="url(#a4)"><path d="M150 29L206 82"/><path d="M150 69L206 88"/><path d="M150 109L206 94"/><path d="M150 149L206 100"/></g>
+      <g font-size="12" text-anchor="middle">
+        <rect x="210" y="62" width="150" height="58" rx="10" fill="#fff" stroke="#2f5fd0"/><text x="285" y="85" fill="#14213d" font-weight="700">competitors/*.json</text><text x="285" y="103" fill="#6b7895" font-size="10.5">local ids L1, L2…</text>
+        <rect x="392" y="62" width="150" height="58" rx="10" fill="#2f5fd0"/><text x="467" y="85" fill="#fff" font-weight="700">merge_research.py</text><text x="467" y="103" fill="#dbe5fc" font-size="10.5">dedupe URL → S1…Sn</text>
+        <rect x="574" y="62" width="130" height="58" rx="10" fill="#fff" stroke="#2f5fd0"/><text x="639" y="85" fill="#14213d" font-weight="700">report.json</text><text x="639" y="103" fill="#6b7895" font-size="10.5">schema-shaped</text>
+        <rect x="736" y="62" width="150" height="58" rx="10" fill="#14213d"/><text x="811" y="85" fill="#fff" font-weight="700">validate_research.py</text><text x="811" y="103" fill="#c9d3ea" font-size="10.5">the gate</text>
+        <rect x="918" y="62" width="150" height="58" rx="10" fill="#e3f4ea" stroke="#1f8a52"/><text x="993" y="85" fill="#1f8a52" font-weight="700">render_report.py</text><text x="993" y="103" fill="#3d4a66" font-size="10.5">charts → HTML → PDF</text>
+      </g>
+      <g stroke="#2f5fd0" stroke-width="2" marker-end="url(#a4)"><path d="M360 91H388"/><path d="M542 91H570"/><path d="M704 91H732"/></g>
+      <path d="M886 91H914" stroke="#1f8a52" stroke-width="2" marker-end="url(#a4)"/><text x="900" y="82" font-size="9.5" fill="#1f8a52" text-anchor="middle">PASS</text>
+      <path d="M811 120V168H467V124" stroke="#b83a3a" stroke-width="1.6" fill="none" stroke-dasharray="5 3" marker-end="url(#a4)"/>
+      <text x="639" y="188" font-size="10.5" fill="#b83a3a" text-anchor="middle">FAIL: unsourced claim · dead link (404/410/DNS) · placeholder · forbidden name → fix and re-merge</text>
+      <rect x="210" y="14" width="150" height="34" rx="7" fill="#fbf1dc"/><text x="285" y="35" font-size="10.5" fill="#a86d00" text-anchor="middle" font-weight="700">claim = {text, source_ids}</text>
+    </svg>
+  </div>
+  <div class="g4" style="margin-top:12px;">
+    <div class="card tint"><h3>Evidence rules</h3><ul><li>Only cite pages actually opened</li><li>Self-claims labelled as claims</li><li>Inference labelled</li><li>"Not publicly disclosed"</li></ul></div>
+    <div class="card tint"><h3>Validator = errors</h3><ul><li>Schema mismatch</li><li>Missing source id</li><li>No URL / future date</li><li>404, 410, DNS fail</li><li>TODO, example.com, banned names</li></ul></div>
+    <div class="card tint"><h3>Validator = warnings</h3><ul><li>403 / 429 / SSL / timeout (bots)</li><li>Source &gt; 90 days old</li><li>Unused sources</li><li>Competitor count off target</li></ul></div>
+    <div class="card tint"><h3>Cross-references</h3><p>Analysis in <code>base.json</code> can cite <code>"infobip:L1"</code>; merge resolves it to the global <code>S…</code> id.</p></div>
+  </div>
+</section>
+
+<!-- 7 · DEBUG LOOP + COMMANDS -->
+<section>
+  <h2><span class="no">7</span>When it breaks, plus Claude Code commands</h2>
+  <div class="g2">
+    <div>
+      <div class="diagram sm">
+        <svg viewBox="0 0 420 210" role="img" aria-label="Self-improvement loop">
+          <defs><marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2f5fd0"/></marker></defs>
+          <circle cx="210" cy="105" r="46" fill="#2f5fd0"/><text x="210" y="101" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="700">stronger</text><text x="210" y="118" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="700">system</text>
+          <g font-size="12" text-anchor="middle" font-weight="700">
+            <rect x="150" y="6" width="120" height="30" rx="15" fill="#fbe6e6"/><text x="210" y="26" fill="#b83a3a">1 · What broke</text>
+            <rect x="296" y="62" width="118" height="30" rx="15" fill="#dfe8fb"/><text x="355" y="82" fill="#173c99">2 · Fix the tool</text>
+            <rect x="296" y="122" width="118" height="30" rx="15" fill="#e3f4ea"/><text x="355" y="142" fill="#1f8a52">3 · Verify</text>
+            <rect x="140" y="174" width="140" height="30" rx="15" fill="#fbf1dc"/><text x="210" y="194" fill="#a86d00">4 · Update the SOP</text>
+            <rect x="6" y="90" width="118" height="30" rx="15" fill="#f2f6fd"/><text x="65" y="110" fill="#3d4a66">5 · Move on</text>
+          </g>
+          <g stroke="#2f5fd0" stroke-width="1.8" fill="none" marker-end="url(#a5)">
+            <path d="M270 26Q330 30 345 58"/><path d="M355 92V118"/><path d="M345 152Q330 186 284 189"/><path d="M140 189Q80 180 68 124"/><path d="M68 90Q90 30 146 22"/>
+          </g>
+        </svg>
+      </div>
+      <p class="small muted" style="margin-top:8px;">Ask before re-running anything that costs credits. Write the lesson down, or the same bug returns next run.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <tr><th>Command / key</th><th>Use it for</th></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Cycle permission modes, including <b>plan mode</b></td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Interrupt Claude mid-task to redirect</td></tr>
+        <tr><td><kbd>Esc</kbd> <kbd>Esc</kbd></td><td>Jump back to an earlier message</td></tr>
+        <tr><td><code>@path/file</code></td><td>Point Claude at a specific file</td></tr>
+        <tr><td><code>!command</code></td><td>Run a shell command yourself, output goes into context</td></tr>
+        <tr><td><code>/init</code></td><td>Generate a starter CLAUDE.md from the repo</td></tr>
+        <tr><td><code>/memory</code></td><td>Edit CLAUDE.md / memory files</td></tr>
+        <tr><td><code>/compact</code></td><td>Summarise a long session to free context</td></tr>
+        <tr><td><code>/clear</code></td><td>Fresh context for an unrelated task</td></tr>
+        <tr><td><code>/resume</code></td><td>Reopen a previous session</td></tr>
+        <tr><td><code>/model</code></td><td>Switch model</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · TRAPS -->
+<section class="page-break">
+  <h2><span class="no">8</span>Traps I hit (and the fix)</h2>
+  <div class="tbl">
+    <table>
+      <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+      <tr><td>Brand font not in PDF</td><td>Jinja autoescape mangled the CSS</td><td><code>{{ brand_css|safe }}</code>; check with <code>pdffonts</code></td></tr>
+      <tr><td>Blank first page</td><td>Running header element placed before content</td><td>Move it inside the first real section</td></tr>
+      <tr><td>Template crash on missing field</td><td><code>StrictUndefined</code></td><td>Use <code>.get()</code> for optional data</td></tr>
+      <tr><td>Citation number wraps alone</td><td>Line break before <code>&lt;sup&gt;</code></td><td>Word joiner (U+2060) before the sup</td></tr>
+      <tr><td>Scraper hangs forever</td><td>Per-request timeout only</td><td>Wall-clock deadline + retry; line-parse robots.txt</td></tr>
+      <tr><td>Wait loop never ends</td><td><code>pgrep -f</code> matches itself</td><td>Wait on the PID instead</td></tr>
+      <tr><td>Banned name false positive</td><td>Case-insensitive match on a common phrase</td><td>Case-sensitive + word boundary</td></tr>
+      <tr><td>PageSpeed quota errors</td><td>Keyless API calls</td><td>Free API key in <code>.env</code>, restricted to one API</td></tr>
+      <tr><td>Same source many ids</td><td>Agents number independently</td><td>Local ids + merge by normalised URL</td></tr>
+      <tr><td>Overstated claim</td><td>Wording stronger than evidence ("shows" vs "holds")</td><td>Re-open source, soften or drop</td></tr>
+      <tr><td>Dead link in sources</td><td>Cited a search snippet of a 404 page</td><td>Drop snippet-only evidence</td></tr>
+      <tr><td>Report too long</td><td>One-column sources, long tables</td><td>Two-column sources, cap long-tail rows</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 9 · FILES + COMMANDS -->
+<section>
+  <h2><span class="no">9</span>Project layout and run commands</h2>
+  <div class="g2">
+<pre class="tree">project/
+├─ CLAUDE.md            <i># rules, loaded every session</i>
+├─ business-profile.md  <i># who we are (reused every run)</i>
+├─ brand/               <i># guidelines, brand.json, fonts, logo</i>
+├─ workflows/
+│  └─ competitor_analysis.md  <i># the SOP + lessons</i>
+├─ tools/               <i># deterministic Python</i>
+├─ schemas/report.schema.json
+├─ templates/           <i># report.html.j2 + report.css</i>
+├─ samples/             <i># placeholder data for design</i>
+├─ research/            <i># source checks</i>
+├─ output/&lt;date_run&gt;/   <i># data/, report.json, report.pdf</i>
+├─ .tmp/                <i># disposable</i>
+└─ .env                 <i># secrets only here (gitignored)</i></pre>
+    <div class="prompt"><div class="ph-head"><div class="t">One run, end to end</div><button class="copy" type="button">Copy</button></div>
+<pre>RUN=output/<span class="ph">2026-10-19_bd-a2p</span>
+python tools/seo_snapshot.py <span class="ph">https://site1 https://site2</span> --out $RUN/data/seo.json
+python tools/pagespeed.py <span class="ph">https://site1 https://site2</span> --out $RUN/data/pagespeed.json
+python tools/merge_research.py $RUN --order <span class="ph">id1,id2,id3</span>
+python tools/validate_research.py $RUN/report.json --check-links --strict
+python tools/render_report.py $RUN/report.json --out $RUN/report.pdf
+pdffonts $RUN/report.pdf | head            # brand font embedded?
+pdftoppm -r 40 -png $RUN/report.pdf .tmp/qa/p   # page images for QA
+
+# HTML → PDF (for this cheat sheet / case study)
+google-chrome --headless=new --disable-gpu --no-pdf-header-footer \
+  --print-to-pdf=<span class="ph">out.pdf</span> <span class="ph">file.html</span></pre></div>
+  </div>
+</section>
+
+<!-- 10 · HABITS -->
+<section style="border-bottom:none;">
+  <h2><span class="no">10</span>Habits that made the difference</h2>
+  <div class="g4">
+    <div class="card"><h3>Plan before code</h3><p>"Don't write code until I approve" keeps the build in order.</p></div>
+    <div class="card"><h3>Questions in one batch</h3><p>Answer once, up front, instead of being interrupted all build long.</p></div>
+    <div class="card"><h3>Design before research</h3><p>Approve a placeholder PDF so no research is wasted on layout churn.</p></div>
+    <div class="card"><h3>Verify your own files</h3><p>Old decks were wrong in places. Treat internal data as unverified.</p></div>
+    <div class="card"><h3>Gate, don't trust</h3><p>A validator that fails the build beats a promise to cite sources.</p></div>
+    <div class="card"><h3>Parallel agents, one brief</h3><p>Same written rules for every sub-agent gives comparable evidence.</p></div>
+    <div class="card"><h3>Keep secrets out of chat</h3><p>Put keys straight in <code>.env</code>; restrict each key to one API.</p></div>
+    <div class="card"><h3>Mark what's internal</h3><p>Tell Claude what must never appear in output (prices, partner names).</p></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.prompt').querySelector('pre');
+      var text = pre ? pre.innerText : '';
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      try { navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); }); }
+      catch (e) { done(false); }
+    });
+  });
+</script>
+</body>
+</html>

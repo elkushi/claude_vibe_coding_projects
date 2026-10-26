@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Research Workflow — Case Study</title>
+<meta name="description" content="How I built a repeatable, evidence-backed competitor-analysis workflow with Claude: architecture, algorithm, results and the exact prompts.">
+<style>
+  :root {
+    --ink: #14213d;
+    --ink-2: #3d4a66;
+    --ink-3: #6b7895;
+    --line: #dbe2f0;
+    --line-2: #eef2f8;
+    --tint: #f2f6fd;
+    --bg: #ffffff;
+    --accent: #2f5fd0;
+    --accent-deep: #173c99;
+    --accent-soft: #dfe8fb;
+    --good: #1f8a52;
+    --good-soft: #e3f4ea;
+    --warn: #a86d00;
+    --warn-soft: #fbf1dc;
+    --bad: #b83a3a;
+    --bad-soft: #fbe6e6;
+    --code-bg: #0f1a33;
+    --code-ink: #e6ecfa;
+    --radius: 14px;
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3, h4 { line-height: 1.15; margin: 0; letter-spacing: -0.015em; }
+  h2 { font-size: 30px; font-weight: 800; color: var(--accent-deep); margin: 6px 0 12px; }
+  h3 { font-size: 19px; font-weight: 700; margin: 26px 0 8px; }
+  p { margin: 0 0 12px; }
+  .lede { font-size: 18px; color: var(--ink-2); max-width: 70ch; }
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  .muted { color: var(--ink-3); }
+  .small { font-size: 13.5px; }
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: none; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--tint); padding: 1px 6px; border-radius: 5px; color: var(--accent-deep); }
+
+  /* Hero */
+  .hero { background: linear-gradient(135deg, #2f5fd0 0%, #132f7a 92%); color: #fff; position: relative; overflow: hidden; padding: 72px 0 64px; border-bottom: none; }
+  .hero .key { position: absolute; border-radius: 22%; transform: rotate(-12deg); pointer-events: none; }
+  .hero .kicker { color: #c9d8fb; }
+  .hero h1 { font-size: clamp(34px, 5.4vw, 54px); font-weight: 800; margin: 16px 0 16px; max-width: 18ch; }
+  .hero p { color: #dbe5fc; font-size: 18px; max-width: 60ch; }
+  .byline { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 26px; font-size: 14px; color: #c9d8fb; }
+  .byline b { color: #fff; display: block; font-size: 15px; }
+
+  /* Stat tiles */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+  .stat { background: var(--tint); border-radius: var(--radius); padding: 18px 16px; }
+  .stat .v { font-size: 32px; font-weight: 800; color: var(--accent-deep); letter-spacing: -0.03em; line-height: 1; }
+  .stat .l { font-size: 13.5px; color: var(--ink-2); margin-top: 8px; line-height: 1.35; }
+
+  /* Cards */
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; background: #fff; break-inside: avoid; }
+  .card.tint { background: var(--tint); border-color: var(--tint); }
+  .card h4 { font-size: 16px; margin-bottom: 6px; }
+  .card p { font-size: 14.5px; color: var(--ink-2); margin: 0; }
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; margin-bottom: 8px; }
+  .tag.blue { background: var(--accent-soft); color: var(--accent-deep); }
+  .tag.green { background: var(--good-soft); color: var(--good); }
+  .tag.amber { background: var(--warn-soft); color: var(--warn); }
+  .tag.red { background: var(--bad-soft); color: var(--bad); }
+
+  /* Figures */
+  figure { margin: 22px 0 8px; break-inside: avoid; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+  .fig-frame { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; background: #fff; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 14px 0; }
+  th { text-align: left; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 9px 10px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+  tr { break-inside: avoid; }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* Steps / algorithm */
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 14px 0; }
+  ol.steps li { counter-increment: s; position: relative; padding: 0 0 14px 46px; break-inside: avoid; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+  ol.steps li b { display: block; }
+  pre.algo { background: var(--tint); border-radius: var(--radius); padding: 18px 20px; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); overflow-x: auto; break-inside: avoid; }
+  pre.algo .c { color: var(--ink-3); }
+  pre.algo .k { color: var(--accent-deep); font-weight: 700; }
+
+  /* Prompts */
+  .prompt { border: 1px solid var(--line); border-radius: var(--radius); margin: 18px 0; overflow: hidden; break-inside: avoid; }
+  .prompt-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--tint); border-bottom: 1px solid var(--line); }
+  .prompt-head .n { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--accent-deep); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 14px; }
+  .prompt-head .t { flex: 1; min-width: 0; }
+  .prompt-head .t b { display: block; font-size: 15.5px; }
+  .prompt-head .t span { font-size: 13px; color: var(--ink-3); }
+  .copy { flex: none; font: 600 13px var(--font); color: var(--accent-deep); background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .copy:hover { border-color: var(--accent); }
+  .prompt pre { margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-ink); font-family: var(--mono); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .prompt .why { padding: 10px 16px 12px; font-size: 13.5px; color: var(--ink-2); border-top: 1px solid var(--line); }
+  .prompt .why b { color: var(--ink); }
+  .ph { color: #ffd479; }
+
+  .callout { background: var(--ink); color: #fff; border-radius: var(--radius); padding: 22px 26px; margin: 20px 0; break-inside: avoid; }
+  .callout .kicker { color: #9fb8f5; }
+  .callout p { font-size: 17px; margin: 8px 0 0; color: #e6ecfa; }
+
+  footer { padding: 30px 0 50px; font-size: 13px; color: var(--ink-3); }
+
+  @media screen and (max-width: 760px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .wrap { padding: 0 16px; }
+    section { padding: 40px 0; }
+    h2 { font-size: 25px; }
+  }
+
+  /* Print / PDF */
+  @page { size: A4; margin: 14mm 13mm 14mm 13mm; }
+  @media print {
+    body { font-size: 11pt; }
+    .wrap { max-width: none; padding: 0; }
+    .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; height: 268mm; border-radius: 6mm;
+            padding: 70mm 14mm 20mm; break-after: page; display: flex; align-items: flex-start; }
+    .hero h1 { font-size: 40pt; }
+    .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    section { padding: 7mm 0; border-bottom: none; }
+    .kicker { break-after: avoid; page-break-after: avoid; }
+    .kicker + h2 { break-before: avoid; }
+    figure, .card, .prompt, table, .stat, .callout { break-inside: avoid; page-break-inside: avoid; }
+    section.break { break-before: page; }
+    .copy { display: none; }
+    .stat, .card.tint, .prompt-head, pre.algo, .prompt pre, .callout, .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h2, h3 { break-after: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header class="hero">
+  <div class="key" style="width:420px;height:420px;top:-170px;right:-120px;border:2px solid rgba(255,255,255,.16);"></div>
+  <div class="key" style="width:200px;height:200px;bottom:-90px;left:-60px;background:rgba(255,255,255,.07);"></div>
+  <div class="key" style="width:110px;height:110px;top:90px;right:260px;border:2px solid rgba(255,255,255,.12);"></div>
+  <div class="wrap" style="position:relative;">
+    <div class="kicker">Case study · AI workflow design</div>
+    <h1>From an empty folder to a 61-page, fully cited market report — built with Claude</h1>
+    <p>A repeatable competitor-analysis workflow where AI handles research and judgement, deterministic code handles execution, and every one of 412 claims is traced to a source. This page shows the architecture, the algorithm and the exact prompts, so the method can be reused for any market.</p>
+    <div class="byline">
+      <div><b>Moustafa Elkoushy</b>Workflow designer</div>
+      <div><b>October 2026</b>Built and first run</div>
+      <div><b>Claude Code + Python</b>Stack</div>
+      <div><b>B2B messaging · Bangladesh</b>First use case</div>
+    </div>
+    <p style="font-size:13px;color:#b9c9f3;margin-top:22px;">Business data from the engagement is summarised only; confidential figures are not shown.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<section>
+  <div class="kicker">01 · Results</div>
+  <h2>What one run produced</h2>
+  <p class="lede">A competitor and market analysis for a telecom-messaging company entering Bangladesh, delivered as a branded PDF for investors and partners.</p>
+  <div class="stats">
+    <div class="stat"><div class="v">9</div><div class="l">competitors profiled in depth, plus 30 in a market overview table</div></div>
+    <div class="stat"><div class="v">192</div><div class="l">unique sources, each with URL and access date</div></div>
+    <div class="stat"><div class="v">412</div><div class="l">factual claims — every one linked to a source</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">uncited claims allowed — a validator blocks the PDF otherwise</div></div>
+    <div class="stat"><div class="v">7</div><div class="l">Python tools written and tested along the way</div></div>
+    <div class="stat"><div class="v">9</div><div class="l">research agents run in parallel, one per competitor</div></div>
+    <div class="stat"><div class="v">4</div><div class="l">human checkpoints where the owner approves before work continues</div></div>
+    <div class="stat"><div class="v">~50</div><div class="l">claims from older internal files checked; 15 corrected or dropped</div></div>
+  </div>
+  <div class="callout">
+    <div class="kicker">The point</div>
+    <p>The value isn't that AI wrote a report. It's that the report can be <b>trusted and re-run</b>: the same structure, the same evidence rules and the same branded output every quarter, with a person approving each stage.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ PROBLEM ═══════════════ -->
+<section>
+  <div class="kicker">02 · The problem</div>
+  <h2>Why "just ask the AI" doesn't work for research</h2>
+  <div class="grid3">
+    <div class="card"><span class="tag red">Accuracy compounds</span><h4>Small errors multiply</h4><p>If each step is 90% accurate, five steps in a row succeed only 59% of the time. A long research task done in one go drifts.</p></div>
+    <div class="card"><span class="tag amber">Unsourced claims</span><h4>Plausible isn't verified</h4><p>Language models produce confident text. Without a hard rule, a report mixes facts, company self-claims and guesses.</p></div>
+    <div class="card"><span class="tag blue">One-off output</span><h4>Nothing repeatable</h4><p>A chat answer can't be re-run next quarter with the same structure, branding and quality bar.</p></div>
+  </div>
+  <h3>The design answer</h3>
+  <p>Split the work by what each part is good at. <b>AI decides and writes</b> — which competitors matter, what a page says, what the evidence means. <b>Code executes</b> — fetching sites, scoring speed, checking citations, merging data, drawing charts, laying out the PDF. <b>A person approves</b> at fixed checkpoints.</p>
+</section>
+
+<!-- ═══════════════ ARCHITECTURE ═══════════════ -->
+<section class="break">
+  <div class="kicker">03 · Architecture</div>
+  <h2>Three layers: Workflows, Agents, Tools</h2>
+  <p>The project follows a "WAT" structure. Instructions live in plain-language SOPs, the AI agent orchestrates, and Python scripts do the deterministic work.</p>
+  <figure class="fig-frame">
+    <svg viewBox="0 0 900 430" role="img" aria-label="Three-layer architecture: workflows, agent, tools, with inputs and outputs">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7895"/></marker>
+      </defs>
+      <!-- Inputs -->
+      <text x="20" y="34" font-size="12" font-weight="700" fill="#6b7895" letter-spacing="1.5">INPUTS</text>
+      <rect x="20" y="48" width="170" height="54" rx="10" fill="#f2f6fd" stroke="#dbe2f0"/>
+      <text x="105" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="#14213d">Business profile</text>
+      <text x="105" y="91" text-anchor="middle" font-size="12" fill="#3d4a66">business-profile.md</text>
+      <rect x="20" y="114" width="170" height="54" rx="10" fill="#f2f6fd" stroke="#dbe2f0"/>
+      <text x="105" y="138" text-anchor="middle" font-size="14" font-weight="700" fill="#14213d">Brand guidelines</text>
+      <text x="105" y="157" text-anchor="middle" font-size="12" fill="#3d4a66">brand.json · logo · fonts</text>
+      <rect x="20" y="180" width="170" height="54" rx="10" fill="#f2f6fd" stroke="#dbe2f0"/>
+      <text x="105" y="204" text-anchor="middle" font-size="14" font-weight="700" fill="#14213d">Internal files</text>
+      <text x="105" y="223" text-anchor="middle" font-size="12" fill="#3d4a66">treated as unverified</text>
+
+      <!-- Layers -->
+      <rect x="240" y="40" width="420" height="100" rx="14" fill="#dfe8fb"/>
+      <text x="262" y="66" font-size="12" font-weight="700" fill="#173c99" letter-spacing="1.5">LAYER 1 · WORKFLOWS</text>
+      <text x="262" y="92" font-size="16" font-weight="800" fill="#14213d">Plain-language SOP</text>
+      <text x="262" y="114" font-size="13" fill="#3d4a66">steps, checkpoints, evidence rules, edge cases,</text>
+      <text x="262" y="131" font-size="13" fill="#3d4a66">lessons learned — updated after every run</text>
+
+      <rect x="240" y="160" width="420" height="100" rx="14" fill="#2f5fd0"/>
+      <text x="262" y="186" font-size="12" font-weight="700" fill="#cfdcfb" letter-spacing="1.5">LAYER 2 · AGENT (CLAUDE)</text>
+      <text x="262" y="212" font-size="16" font-weight="800" fill="#ffffff">Decides and orchestrates</text>
+      <text x="262" y="234" font-size="13" fill="#e6ecfa">reads the SOP, runs tools in order, launches</text>
+      <text x="262" y="251" font-size="13" fill="#e6ecfa">parallel research agents, fixes failures</text>
+
+      <rect x="240" y="280" width="420" height="100" rx="14" fill="#14213d"/>
+      <text x="262" y="306" font-size="12" font-weight="700" fill="#9fb8f5" letter-spacing="1.5">LAYER 3 · TOOLS (PYTHON)</text>
+      <text x="262" y="332" font-size="16" font-weight="800" fill="#ffffff">Executes deterministically</text>
+      <text x="262" y="354" font-size="13" fill="#e6ecfa">snapshot · pagespeed · validate · merge ·</text>
+      <text x="262" y="371" font-size="13" fill="#e6ecfa">charts · render — same input, same output</text>
+
+      <!-- Arrows between layers -->
+      <path d="M450,140 L450,158" stroke="#6b7895" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M450,260 L450,278" stroke="#6b7895" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M190,75 C215,75 215,90 238,90" fill="none" stroke="#6b7895" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M190,141 C215,141 215,205 238,205" fill="none" stroke="#6b7895" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M190,207 C215,207 215,215 238,215" fill="none" stroke="#6b7895" stroke-width="2" marker-end="url(#ar)"/>
+
+      <!-- Human -->
+      <rect x="700" y="160" width="180" height="100" rx="14" fill="#fbf1dc"/>
+      <text x="790" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#a86d00" letter-spacing="1.5">HUMAN</text>
+      <text x="790" y="214" text-anchor="middle" font-size="15" font-weight="800" fill="#14213d">Approves at</text>
+      <text x="790" y="234" text-anchor="middle" font-size="15" font-weight="800" fill="#14213d">checkpoints</text>
+      <path d="M662,210 L698,210" stroke="#a86d00" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)" marker-start="url(#ar)"/>
+
+      <!-- Output -->
+      <text x="700" y="34" font-size="12" font-weight="700" fill="#6b7895" letter-spacing="1.5">OUTPUT</text>
+      <rect x="700" y="48" width="180" height="86" rx="10" fill="#e3f4ea" stroke="#bfe3cc"/>
+      <text x="790" y="78" text-anchor="middle" font-size="15" font-weight="800" fill="#14213d">Branded PDF</text>
+      <text x="790" y="98" text-anchor="middle" font-size="12" fill="#3d4a66">every claim cited</text>
+      <text x="790" y="116" text-anchor="middle" font-size="12" fill="#3d4a66">+ report.json data</text>
+      <path d="M662,330 C700,330 790,300 790,138" fill="none" stroke="#1f8a52" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="20" y="300" font-size="13" fill="#3d4a66">Credentials live only</text>
+      <text x="20" y="318" font-size="13" fill="#3d4a66">in <tspan font-family="monospace" fill="#173c99">.env</tspan>; intermediate</text>
+      <text x="20" y="336" font-size="13" fill="#3d4a66">files in <tspan font-family="monospace" fill="#173c99">.tmp/</tspan> are disposable.</text>
+    </svg>
+    <figcaption>Figure 1 — Probabilistic work (deciding, writing) sits in the agent; anything that must be exact sits in tested code.</figcaption>
+  </figure>
+</section>
+
+<!-- ═══════════════ ALGORITHM ═══════════════ -->
+<section class="break">
+  <div class="kicker">04 · The algorithm</div>
+  <h2>End-to-end flow, with human checkpoints</h2>
+  <p>The workflow runs in phases. Build phases happen once; run phases repeat every time the report is refreshed. Diamonds are checkpoints — the agent stops until the owner approves.</p>
+  <figure class="fig-frame">
+    <svg viewBox="0 0 900 720" role="img" aria-label="Flowchart of the workflow phases with checkpoints">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7895"/></marker>
+      </defs>
+      <!-- Lane labels -->
+      <rect x="10" y="10" width="880" height="250" rx="14" fill="#f2f6fd"/>
+      <text x="28" y="36" font-size="12" font-weight="700" fill="#173c99" letter-spacing="1.5">BUILD ONCE</text>
+      <rect x="10" y="276" width="880" height="434" rx="14" fill="#eef7f1"/>
+      <text x="28" y="302" font-size="12" font-weight="700" fill="#1f8a52" letter-spacing="1.5">REPEAT EVERY RUN</text>
+
+      <!-- Build row -->
+      <g font-size="13.5">
+        <rect x="30" y="56" width="190" height="78" rx="12" fill="#fff" stroke="#dbe2f0"/>
+        <text x="125" y="84" text-anchor="middle" font-weight="800" fill="#14213d">0 · Inputs</text>
+        <text x="125" y="104" text-anchor="middle" fill="#3d4a66">profile + brand tokens</text>
+        <text x="125" y="122" text-anchor="middle" fill="#3d4a66">extracted &amp; saved</text>
+
+        <rect x="250" y="56" width="190" height="78" rx="12" fill="#fff" stroke="#dbe2f0"/>
+        <text x="345" y="84" text-anchor="middle" font-weight="800" fill="#14213d">1 · Template</text>
+        <text x="345" y="104" text-anchor="middle" fill="#3d4a66">branded PDF rendered</text>
+        <text x="345" y="122" text-anchor="middle" fill="#3d4a66">with placeholder data</text>
+
+        <rect x="470" y="56" width="190" height="78" rx="12" fill="#fff" stroke="#dbe2f0"/>
+        <text x="565" y="84" text-anchor="middle" font-weight="800" fill="#14213d">2 · Tools + SOP</text>
+        <text x="565" y="104" text-anchor="middle" fill="#3d4a66">schema, validator, SEO</text>
+        <text x="565" y="122" text-anchor="middle" fill="#3d4a66">and speed tools, tested</text>
+
+        <rect x="690" y="56" width="180" height="78" rx="12" fill="#fff" stroke="#dbe2f0"/>
+        <text x="780" y="84" text-anchor="middle" font-weight="800" fill="#14213d">Source check</text>
+        <text x="780" y="104" text-anchor="middle" fill="#3d4a66">old internal files</text>
+        <text x="780" y="122" text-anchor="middle" fill="#3d4a66">verified vs live web</text>
+      </g>
+      <!-- build checkpoints -->
+      <g font-size="11.5" font-weight="700" fill="#a86d00">
+        <polygon points="125,150 145,170 125,190 105,170" fill="#fbf1dc" stroke="#a86d00"/><text x="125" y="214" text-anchor="middle">approve profile</text>
+        <polygon points="345,150 365,170 345,190 325,170" fill="#fbf1dc" stroke="#a86d00"/><text x="345" y="214" text-anchor="middle">approve design</text>
+        <polygon points="565,150 585,170 565,190 545,170" fill="#fbf1dc" stroke="#a86d00"/><text x="565" y="214" text-anchor="middle">approve SOP</text>
+        <polygon points="780,150 800,170 780,190 760,170" fill="#fbf1dc" stroke="#a86d00"/><text x="780" y="214" text-anchor="middle">confirm internal facts</text>
+      </g>
+      <g stroke="#6b7895" stroke-width="2" fill="none">
+        <path d="M125,134 L125,148" marker-end="url(#a2)"/><path d="M345,134 L345,148" marker-end="url(#a2)"/>
+        <path d="M565,134 L565,148" marker-end="url(#a2)"/><path d="M780,134 L780,148" marker-end="url(#a2)"/>
+        <path d="M147,170 C200,170 200,95 248,95" marker-end="url(#a2)"/>
+        <path d="M367,170 C420,170 420,95 468,95" marker-end="url(#a2)"/>
+        <path d="M587,170 C640,170 640,95 688,95" marker-end="url(#a2)"/>
+        <path d="M780,226 L780,250 L450,250 L450,318" marker-end="url(#a2)"/>
+      </g>
+
+      <!-- Run column -->
+      <g font-size="13.5">
+        <rect x="300" y="320" width="300" height="56" rx="12" fill="#fff" stroke="#bfe3cc"/>
+        <text x="450" y="343" text-anchor="middle" font-weight="800" fill="#14213d">3 · Identify competitors</text>
+        <text x="450" y="362" text-anchor="middle" fill="#3d4a66">propose 5–8 direct + 2–3 indirect, each sourced</text>
+
+        <rect x="300" y="430" width="300" height="56" rx="12" fill="#fff" stroke="#bfe3cc"/>
+        <text x="450" y="453" text-anchor="middle" font-weight="800" fill="#14213d">4 · Research in parallel</text>
+        <text x="450" y="472" text-anchor="middle" fill="#3d4a66">1 agent per competitor + site/speed tools</text>
+
+        <rect x="300" y="540" width="300" height="56" rx="12" fill="#fff" stroke="#bfe3cc"/>
+        <text x="450" y="563" text-anchor="middle" font-weight="800" fill="#14213d">5 · Analysis</text>
+        <text x="450" y="582" text-anchor="middle" fill="#3d4a66">matrix · gaps · impact × effort recommendations</text>
+
+        <rect x="300" y="640" width="300" height="56" rx="12" fill="#1f8a52"/>
+        <text x="450" y="663" text-anchor="middle" font-weight="800" fill="#fff">6 · Render &amp; QA → PDF</text>
+        <text x="450" y="682" text-anchor="middle" fill="#e3f4ea">fonts embedded · 30–50 pages · visual check</text>
+      </g>
+      <g font-size="11.5" font-weight="700" fill="#a86d00">
+        <polygon points="450,384 466,400 450,416 434,400" fill="#fbf1dc" stroke="#a86d00"/><text x="476" y="404">A · approve the list</text>
+        <polygon points="450,494 466,510 450,526 434,510" fill="#fbf1dc" stroke="#a86d00"/><text x="476" y="514">B · review findings</text>
+        <polygon points="450,604 466,620 450,636 434,620" fill="#fbf1dc" stroke="#a86d00"/><text x="476" y="624">C · review analysis</text>
+      </g>
+      <g stroke="#6b7895" stroke-width="2" fill="none">
+        <path d="M450,376 L450,383"/><path d="M450,416 L450,428" marker-end="url(#a2)"/>
+        <path d="M450,486 L450,493"/><path d="M450,526 L450,538" marker-end="url(#a2)"/>
+        <path d="M450,596 L450,603"/><path d="M450,636 L450,638" marker-end="url(#a2)"/>
+      </g>
+
+      <!-- Validation gate side loop -->
+      <g font-size="13">
+        <rect x="660" y="470" width="210" height="86" rx="12" fill="#fff" stroke="#b83a3a"/>
+        <text x="765" y="496" text-anchor="middle" font-weight="800" fill="#b83a3a">Validation gate</text>
+        <text x="765" y="516" text-anchor="middle" fill="#3d4a66">every claim cited?</text>
+        <text x="765" y="534" text-anchor="middle" fill="#3d4a66">links alive? schema OK?</text>
+        <text x="765" y="550" text-anchor="middle" fill="#3d4a66">no placeholders left?</text>
+      </g>
+      <g stroke="#b83a3a" stroke-width="2" fill="none">
+        <path d="M600,458 C640,458 640,500 658,500" marker-end="url(#a2)"/>
+        <path d="M660,540 C630,540 630,568 602,568" marker-end="url(#a2)" stroke-dasharray="5 4"/>
+      </g>
+      <text x="612" y="448" font-size="11.5" fill="#b83a3a" font-weight="700">merge</text>
+      <text x="604" y="600" font-size="11.5" fill="#b83a3a" font-weight="700">fail → fix</text>
+
+      <!-- Left notes -->
+      <g font-size="13" fill="#3d4a66">
+        <text x="40" y="350" font-weight="700" fill="#14213d">Each run</text>
+        <text x="40" y="372">writes to its own dated</text>
+        <text x="40" y="390">folder, so runs can be</text>
+        <text x="40" y="408">compared over time.</text>
+        <text x="40" y="452" font-weight="700" fill="#14213d">7 · Close the run</text>
+        <text x="40" y="474">lessons learned go back</text>
+        <text x="40" y="492">into the SOP; facts that</text>
+        <text x="40" y="510">changed go into a new</text>
+        <text x="40" y="528">source-check file.</text>
+        <text x="40" y="668" font-weight="700" fill="#a86d00">D · owner signs off</text>
+      </g>
+      <path d="M298,668 L230,668" stroke="#a86d00" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a2)"/>
+    </svg>
+    <figcaption>Figure 2 — Build phases (top) run once. Run phases (bottom) repeat each quarter, with the validation gate blocking the PDF until the data is clean.</figcaption>
+  </figure>
+
+  <h3>The same algorithm, as pseudocode</h3>
+<pre class="algo"><span class="k">run_report</span>(market, date):
+    profile  ← read("business-profile.md")             <span class="c"># owner-confirmed facts</span>
+    brand    ← read("brand/brand.json")
+    known    ← latest("research/source_check_*.md")    <span class="c"># verified facts + known-false claims</span>
+
+    list     ← agent.propose_competitors(profile, search)    <span class="c"># 5–8 direct, 2–3 indirect</span>
+    <span class="k">checkpoint</span> A: owner approves list
+
+    <span class="k">parallel for</span> c <span class="k">in</span> list:                               <span class="c"># one sub-agent each</span>
+        files[c] ← agent.research(c, brief, known[c])     <span class="c"># JSON matching the schema</span>
+    seo   ← tool.seo_snapshot(all_sites)
+    speed ← tool.pagespeed(all_sites)
+
+    report ← tool.merge(base, files, speed)           <span class="c"># dedupe + renumber sources</span>
+    <span class="k">repeat until</span> tool.validate(report) = PASS:
+        fix(report)                                   <span class="c"># drop or re-source failing claims</span>
+    <span class="k">checkpoint</span> B: owner reviews findings
+
+    report.analysis ← agent.analyse(report)           <span class="c"># matrix, gaps, recommendations</span>
+    <span class="k">checkpoint</span> C: owner reviews analysis
+
+    pdf ← tool.render(report, brand)                  <span class="c"># charts + template + WeasyPrint</span>
+    qa(pdf)                                           <span class="c"># fonts, page count, visual check</span>
+    <span class="k">checkpoint</span> D: owner signs off
+    update_sop(lessons_learned)</pre>
+</section>
+
+<!-- ═══════════════ RESEARCH ENGINE ═══════════════ -->
+<section class="break">
+  <div class="kicker">05 · Research engine</div>
+  <h2>Fan out, then funnel through one gate</h2>
+  <p>Research is the slowest step, so it runs in parallel: one Claude sub-agent per competitor, all following the same written brief. Their outputs are funnelled through deterministic merge and validation before anything is rendered.</p>
+  <figure class="fig-frame">
+    <svg viewBox="0 0 900 360" role="img" aria-label="Parallel research agents feeding a merge step and a validation gate">
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6b7895"/></marker>
+      </defs>
+      <rect x="20" y="140" width="150" height="80" rx="12" fill="#dfe8fb"/>
+      <text x="95" y="172" text-anchor="middle" font-size="14" font-weight="800" fill="#14213d">Approved list</text>
+      <text x="95" y="192" text-anchor="middle" font-size="12" fill="#3d4a66">+ shared brief</text>
+      <text x="95" y="208" text-anchor="middle" font-size="12" fill="#3d4a66">+ known facts</text>
+      <g font-size="12.5" font-weight="700" fill="#ffffff">
+        <rect x="230" y="20" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="40" text-anchor="middle">Agent · SSL Wireless</text>
+        <rect x="230" y="58" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="78" text-anchor="middle">Agent · REVE</text>
+        <rect x="230" y="96" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="116" text-anchor="middle">Agent · Comjagat</text>
+        <rect x="230" y="134" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="154" text-anchor="middle">Agent · Kay &amp; Que</text>
+        <rect x="230" y="172" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="192" text-anchor="middle">Agent · MiMSMS</text>
+        <rect x="230" y="210" width="160" height="30" rx="8" fill="#2f5fd0"/><text x="310" y="230" text-anchor="middle">Agent · Alpha SMS</text>
+        <rect x="230" y="248" width="160" height="30" rx="8" fill="#173c99"/><text x="310" y="268" text-anchor="middle">Agent · Infobip</text>
+        <rect x="230" y="286" width="160" height="30" rx="8" fill="#173c99"/><text x="310" y="306" text-anchor="middle">Agent · Route Mobile</text>
+        <rect x="230" y="324" width="160" height="30" rx="8" fill="#173c99"/><text x="310" y="344" text-anchor="middle">Agent · AiSensy</text>
+      </g>
+      <g stroke="#9aa6c0" stroke-width="1.4" fill="none">
+        <path d="M170,180 C200,180 200,35 228,35"/><path d="M170,180 C200,180 200,73 228,73"/><path d="M170,180 C200,180 200,111 228,111"/>
+        <path d="M170,180 C200,180 200,149 228,149"/><path d="M170,180 L228,187"/><path d="M170,180 C200,180 200,225 228,225"/>
+        <path d="M170,180 C200,180 200,263 228,263"/><path d="M170,180 C200,180 200,301 228,301"/><path d="M170,180 C200,180 200,339 228,339"/>
+        <path d="M390,35 C430,35 430,180 458,180"/><path d="M390,73 C430,73 430,180 458,180"/><path d="M390,111 C430,111 430,180 458,180"/>
+        <path d="M390,149 C430,149 430,180 458,180"/><path d="M390,187 L458,180"/><path d="M390,225 C430,225 430,180 458,180"/>
+        <path d="M390,263 C430,263 430,180 458,180"/><path d="M390,301 C430,301 430,180 458,180"/><path d="M390,339 C430,339 430,180 458,180"/>
+      </g>
+      <rect x="460" y="130" width="140" height="100" rx="12" fill="#fff" stroke="#dbe2f0"/>
+      <text x="530" y="160" text-anchor="middle" font-size="14" font-weight="800" fill="#14213d">Merge tool</text>
+      <text x="530" y="180" text-anchor="middle" font-size="12" fill="#3d4a66">dedupe by URL</text>
+      <text x="530" y="197" text-anchor="middle" font-size="12" fill="#3d4a66">renumber S1…Sn</text>
+      <text x="530" y="214" text-anchor="middle" font-size="12" fill="#3d4a66">add speed scores</text>
+      <path d="M600,180 L638,180" stroke="#6b7895" stroke-width="2" marker-end="url(#a3)"/>
+      <polygon points="700,130 760,180 700,230 640,180" fill="#fbe6e6" stroke="#b83a3a" stroke-width="1.6"/>
+      <text x="700" y="176" text-anchor="middle" font-size="13" font-weight="800" fill="#b83a3a">Validate</text>
+      <text x="700" y="194" text-anchor="middle" font-size="11.5" fill="#b83a3a">PASS?</text>
+      <path d="M760,180 L798,180" stroke="#1f8a52" stroke-width="2" marker-end="url(#a3)"/>
+      <text x="768" y="170" font-size="11.5" font-weight="700" fill="#1f8a52">yes</text>
+      <rect x="800" y="145" width="90" height="70" rx="12" fill="#1f8a52"/>
+      <text x="845" y="176" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Render</text>
+      <text x="845" y="196" text-anchor="middle" font-size="12" fill="#e3f4ea">PDF</text>
+      <path d="M700,232 C700,290 560,290 530,236" fill="none" stroke="#b83a3a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a3)"/>
+      <text x="600" y="300" font-size="11.5" font-weight="700" fill="#b83a3a">no → fix the claim or its source, re-merge</text>
+    </svg>
+    <figcaption>Figure 3 — Nine agents ran at once in the first run. Each returned one JSON file; the merge tool combined 192 unique sources from them.</figcaption>
+  </figure>
+
+  <h3>Evidence collected per competitor</h3>
+  <p class="small muted">Two separate charts rather than one with two scales: claims and sources measure different things.</p>
+  <div class="grid2">
+    <figure class="fig-frame" style="margin-top:6px;">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Cited claims per competitor">
+        <text x="0" y="16" font-size="13" font-weight="700" fill="#14213d">Cited claims per profile</text>
+        <g font-size="12" fill="#3d4a66">
+          <text x="104" y="48" text-anchor="end">Comjagat</text><text x="104" y="76" text-anchor="end">Infobip</text>
+          <text x="104" y="104" text-anchor="end">REVE</text><text x="104" y="132" text-anchor="end">MiMSMS</text>
+          <text x="104" y="160" text-anchor="end">AiSensy</text><text x="104" y="188" text-anchor="end">Alpha SMS</text>
+          <text x="104" y="216" text-anchor="end">SSL Wireless</text><text x="104" y="244" text-anchor="end">Kay &amp; Que</text>
+          <text x="104" y="272" text-anchor="end">Route Mobile</text>
+        </g>
+        <g fill="#2f5fd0">
+          <rect x="112" y="36" width="257.6" height="16" rx="3"/><rect x="112" y="64" width="257.6" height="16" rx="3"/>
+          <rect x="112" y="92" width="252" height="16" rx="3"/><rect x="112" y="120" width="252" height="16" rx="3"/>
+          <rect x="112" y="148" width="246.4" height="16" rx="3"/><rect x="112" y="176" width="229.6" height="16" rx="3"/>
+          <rect x="112" y="204" width="224" height="16" rx="3"/><rect x="112" y="232" width="212.8" height="16" rx="3"/>
+          <rect x="112" y="260" width="207.2" height="16" rx="3"/>
+        </g>
+        <g font-size="12" font-weight="700" fill="#14213d">
+          <text x="375" y="48">46</text><text x="375" y="76">46</text><text x="370" y="104">45</text><text x="370" y="132">45</text>
+          <text x="364" y="160">44</text><text x="347" y="188">41</text><text x="342" y="216">40</text><text x="331" y="244">38</text><text x="325" y="272">37</text>
+        </g>
+      </svg>
+    </figure>
+    <figure class="fig-frame" style="margin-top:6px;">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sources per competitor">
+        <text x="0" y="16" font-size="13" font-weight="700" fill="#14213d">Sources opened per profile</text>
+        <g font-size="12" fill="#3d4a66">
+          <text x="104" y="48" text-anchor="end">Infobip</text><text x="104" y="76" text-anchor="end">MiMSMS</text>
+          <text x="104" y="104" text-anchor="end">Kay &amp; Que</text><text x="104" y="132" text-anchor="end">SSL Wireless</text>
+          <text x="104" y="160" text-anchor="end">Route Mobile</text><text x="104" y="188" text-anchor="end">Comjagat</text>
+          <text x="104" y="216" text-anchor="end">AiSensy</text><text x="104" y="244" text-anchor="end">REVE</text>
+          <text x="104" y="272" text-anchor="end">Alpha SMS</text>
+        </g>
+        <g fill="#173c99">
+          <rect x="112" y="36" width="260" height="16" rx="3"/><rect x="112" y="64" width="260" height="16" rx="3"/>
+          <rect x="112" y="92" width="218.4" height="16" rx="3"/><rect x="112" y="120" width="197.6" height="16" rx="3"/>
+          <rect x="112" y="148" width="197.6" height="16" rx="3"/><rect x="112" y="176" width="176.8" height="16" rx="3"/>
+          <rect x="112" y="204" width="166.4" height="16" rx="3"/><rect x="112" y="232" width="156" height="16" rx="3"/>
+          <rect x="112" y="260" width="135.2" height="16" rx="3"/>
+        </g>
+        <g font-size="12" font-weight="700" fill="#14213d">
+          <text x="378" y="48">25</text><text x="378" y="76">25</text><text x="336" y="104">21</text><text x="315" y="132">19</text>
+          <text x="315" y="160">19</text><text x="294" y="188">17</text><text x="284" y="216">16</text><text x="274" y="244">15</text><text x="253" y="272">13</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+  <p class="small muted">Counts from the first run's research files. Sources are deduplicated across profiles in the final report (192 unique).</p>
+</section>
+
+<!-- ═══════════════ TRUST ═══════════════ -->
+<section class="break">
+  <div class="kicker">06 · Building trust into the output</div>
+  <h2>The validation gate and the evidence rules</h2>
+  <p>The single most important design decision: the PDF <b>cannot be rendered</b> unless a deterministic validator passes. The AI is told the rules; the code enforces them.</p>
+  <div class="grid2">
+    <div>
+      <h3 style="margin-top:6px;">What the validator checks</h3>
+      <ol class="steps">
+        <li><b>Schema</b>Every field matches a JSON schema; every claim carries at least one source id.</li>
+        <li><b>Citations</b>Every cited id exists; every external source has a URL and an ISO access date.</li>
+        <li><b>Completeness</b>The comparison matrix scores every dimension for every company.</li>
+        <li><b>No placeholders</b>Production runs fail on "Sample" or "TODO" text and example URLs.</li>
+        <li><b>Forbidden terms</b>Names that must never appear in a report are blocked.</li>
+        <li><b>Live links</b>404s and dead domains fail; bot-blocked pages are flagged for a manual check.</li>
+      </ol>
+    </div>
+    <div>
+      <h3 style="margin-top:6px;">Evidence rules every agent follows</h3>
+      <table>
+        <tr><td><span class="tag green">Fact</span></td><td>Only cite pages actually opened. A search snippet is marked as one.</td></tr>
+        <tr><td><span class="tag blue">Claim</span></td><td>Company statements are labelled: "claims 60+ banks", not "serves".</td></tr>
+        <tr><td><span class="tag amber">Inference</span></td><td>Reasoning is marked "likely" or "suggests" — never stated as fact.</td></tr>
+        <tr><td><span class="tag red">Gap</span></td><td>No evidence → "not publicly disclosed", citing where it was checked.</td></tr>
+      </table>
+    </div>
+  </div>
+  <h3>Old data is treated as unverified</h3>
+  <p>Before research, the internal files (a previous study, sales decks) were checked against live sources by three parallel agents. About 50 claims were marked confirmed, outdated, contradicted or unverifiable. Examples of what that caught:</p>
+  <div class="grid3">
+    <div class="card tint"><span class="tag amber">Outdated</span><p>A competitor's client count had changed (45+ banks → 60+ today).</p></div>
+    <div class="card tint"><span class="tag red">Unsupported</span><p>A "80% market share" figure had no public source and was dropped.</p></div>
+    <div class="card tint"><span class="tag green">New</span><p>Regulator notices revealed 71 licence cancellations, not the 63 on file.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ SELF-IMPROVEMENT ═══════════════ -->
+<section>
+  <div class="kicker">07 · Self-improvement loop</div>
+  <h2>Every failure makes the system stronger</h2>
+  <div class="grid2" style="align-items:center;">
+    <figure style="margin:0;">
+      <svg viewBox="0 0 360 330" role="img" aria-label="Five-step improvement loop">
+        <defs><marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2f5fd0"/></marker></defs>
+        <circle cx="180" cy="165" r="112" fill="none" stroke="#dfe8fb" stroke-width="22"/>
+        <g stroke="#2f5fd0" stroke-width="2.5" fill="none">
+          <path d="M228,63 A112,112 0 0 1 290,140" marker-end="url(#a4)"/>
+          <path d="M290,195 A112,112 0 0 1 225,268" marker-end="url(#a4)"/>
+          <path d="M150,274 A112,112 0 0 1 75,210" marker-end="url(#a4)"/>
+          <path d="M70,135 A112,112 0 0 1 120,70" marker-end="url(#a4)"/>
+        </g>
+        <g font-size="13" font-weight="800" text-anchor="middle">
+          <rect x="130" y="34" width="100" height="34" rx="10" fill="#2f5fd0"/><text x="180" y="56" fill="#fff">1 · Break</text>
+          <rect x="262" y="148" width="92" height="34" rx="10" fill="#2f5fd0"/><text x="308" y="170" fill="#fff">2 · Fix tool</text>
+          <rect x="160" y="262" width="100" height="34" rx="10" fill="#2f5fd0"/><text x="210" y="284" fill="#fff">3 · Verify</text>
+          <rect x="6" y="148" width="96" height="34" rx="10" fill="#2f5fd0"/><text x="54" y="170" fill="#fff">4 · Document</text>
+        </g>
+        <text x="180" y="158" text-anchor="middle" font-size="14" font-weight="800" fill="#14213d">Update the SOP</text>
+        <text x="180" y="178" text-anchor="middle" font-size="12" fill="#3d4a66">so it never</text>
+        <text x="180" y="194" text-anchor="middle" font-size="12" fill="#3d4a66">happens again</text>
+      </svg>
+    </figure>
+    <div>
+      <p>Real failures from the first build, each fixed in the tool and recorded in the workflow's "lessons learned":</p>
+      <table>
+        <tr><th>What broke</th><th>Fix</th></tr>
+        <tr><td>A website request hung forever</td><td>Hard wall-clock deadline + one retry</td></tr>
+        <tr><td>A regex took 5 min of CPU</td><td>Replaced with a simple line parser</td></tr>
+        <tr><td>Brand font silently missing in PDF</td><td>Template escaped CSS quotes; marked safe, now checked</td></tr>
+        <tr><td>An everyday phrase flagged as a banned company name</td><td>Case-sensitive, whole-word matching</td></tr>
+        <tr><td>Free API quota exhausted</td><td>Restricted API key in <code>.env</code></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STACK ═══════════════ -->
+<section>
+  <div class="kicker">08 · Stack</div>
+  <h2>Tools and why they were chosen</h2>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+    <tr><td>Agent</td><td>Claude Code (plan mode, sub-agents)</td><td>Plans before acting, asks questions in one batch, runs parallel research agents.</td></tr>
+    <tr><td>Research</td><td>Web search + page fetch</td><td>Free; every claim points to a page that was actually opened.</td></tr>
+    <tr><td>Site data</td><td>requests + BeautifulSoup; Google PageSpeed API</td><td>Same checks on every site, every run; free speed and SEO scores.</td></tr>
+    <tr><td>Data contract</td><td>JSON Schema</td><td>Agents' output has one fixed shape, so code can merge and check it.</td></tr>
+    <tr><td>PDF</td><td>Jinja2 + WeasyPrint (HTML/CSS)</td><td>Running headers, page numbers, clickable citations, brand fonts embedded.</td></tr>
+    <tr><td>Charts</td><td>matplotlib → SVG</td><td>Brand colours and fonts; sharp at any zoom.</td></tr>
+  </table>
+  </div>
+  <p class="small muted">Seven tools in total: brand extractor, SEO snapshot, PageSpeed, validator, merge, charts and renderer — about 1,250 lines of Python, plus a 265-line schema and a 120-line SOP.</p>
+</section>
+
+<!-- ═══════════════ PROMPTS ═══════════════ -->
+<section class="break">
+  <div class="kicker">09 · Prompt playbook</div>
+  <h2>The prompts, in order</h2>
+  <p class="lede">These are the prompts to build the same workflow from zero in Claude Code. Replace the <span style="background:#0f1a33;color:#ffd479;padding:1px 6px;border-radius:5px;font-family:monospace;font-size:.9em;">[yellow parts]</span> with your own details. Send them one at a time and review each result before sending the next.</p>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">0</div><div class="t"><b>Set the rules of the project</b><span>Save as CLAUDE.md in an empty folder before anything else</span></div><button class="copy" type="button">Copy</button></div>
+<pre>You work inside the WAT framework (Workflows, Agents, Tools).
+- Workflows: Markdown SOPs in workflows/ — objective, inputs, tools, outputs, edge cases.
+- Agent (you): read the workflow, run tools in order, handle failures, ask when unsure.
+- Tools: Python scripts in tools/ that do the deterministic work. Secrets only in .env.
+
+Rules:
+1. Look for an existing tool before writing a new one.
+2. When something fails: read the full error, fix the tool, re-test, and record what you
+   learned in the workflow. Ask me before re-running anything that costs money.
+3. Don't overwrite a workflow without asking me.
+4. Temporary files go in .tmp/ and are disposable. Final outputs go to [where I keep deliverables].</pre>
+    <div class="why"><b>Why:</b> this file is loaded into every session, so the split between AI judgement and code execution holds for the whole project.</div>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">1</div><div class="t"><b>Initialise the project</b><span>First message in the folder</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I just added a CLAUDE.md that explains how I want you to work in this project.
+Initialise the project and set everything up (folders, .gitignore, .env.example,
+requirements.txt, a Python virtual environment). Ask me any questions you have first.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">2</div><div class="t"><b>Describe the workflow and ask for a plan</b><span>Use plan mode — no code yet</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I want to build a REPEATABLE competitor analysis and market research workflow.
+The final output of each run is a fully branded PDF report.
+
+Inputs I will provide:
+- Business info about my company. Save it to business-profile.md so every run reuses it.
+- Brand guidelines (colours, fonts, tone) and a logo. The entire PDF must follow them:
+  cover, headers, charts, tables, footer.
+
+What the workflow should do:
+1. Read business-profile.md.
+2. Identify <span class="ph">[5–8]</span> direct and <span class="ph">[2–3]</span> indirect competitors in <span class="ph">[market / region]</span>.
+3. For each competitor research: positioning and messaging, pricing, product features,
+   website and SEO, content and social, customer reviews (praise and complaints),
+   recent moves (launches, partnerships, expansion).
+4. Compare them against my business in a matrix.
+5. Identify what works for them, where they are weak, market gaps, and concrete
+   improvements for my business, prioritised by impact and effort.
+6. Every claim must cite a source URL and access date.
+
+Report structure: Cover → Executive summary → Market overview → Competitor profiles →
+Comparison matrix → Opportunities &amp; gaps → Recommendations → Sources
+
+Before planning, ask me ALL your clarifying questions in one batch. Then give me a plan
+with: phases, files and folders you will create, the PDF library you will use and why,
+and a checkpoint after each phase where I review before you continue.
+Don't write code until I approve.</pre>
+    <div class="why"><b>Why:</b> "all questions in one batch" and "a checkpoint after each phase" are what keep a long build under control.</div>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">3</div><div class="t"><b>Give the business profile</b><span>Paste after answering Claude's questions</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Here is my business profile. Save it to business-profile.md exactly as written.
+Then tell me what in it changes your plan, and list anything that looks inconsistent
+or needs a source.
+
+<span class="ph">[paste: company overview, what you sell, customers and segments, what makes you
+different, go-to-market channels, market and region, known competitors,
+companies to leave out, open questions]</span></pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">4</div><div class="t"><b>Hand over the brand</b><span>Put the files in brand/ first</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I put my brand guidelines, logo and fonts in brand/. Extract the colours, fonts,
+type scale, logo rules, motif and tone of voice into brand/brand.json.
+Show me what you found and flag any rule that conflicts with this report
+(for example a rule about naming competitors) before you use it.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">5</div><div class="t"><b>Design first, with placeholder data</b><span>Approve the look before any research is spent</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Build the branded PDF template now, using placeholder data only — no research yet.
+Cover every section type: cover, contents, executive summary, a competitor profile,
+the comparison matrix, charts, recommendation table and sources.
+Render a sample PDF, check that the brand fonts are embedded and there are no blank
+pages, and show me the result.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">6</div><div class="t"><b>Verify the internal files</b><span>Old studies and decks are useful — and often wrong</span></div><button class="copy" type="button">Copy</button></div>
+<pre>I added files related to the business in <span class="ph">[folder]</span>. Some information may no longer
+be valid, so check everything. Mark each external claim as confirmed, outdated,
+contradicted or unverifiable, with the source link. Internal facts you can't check
+online: list the conflicts and ask me. Don't update the business profile until I answer.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">7</div><div class="t"><b>Build and test the research tools</b><span>Deterministic parts become scripts</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Build the research tools and the workflow SOP:
+- a JSON schema for the report data (every claim must carry source ids),
+- a validator that blocks rendering if any claim is unsourced, a link is dead,
+  or placeholder text is left,
+- a website snapshot tool and a PageSpeed tool,
+- workflows/<span class="ph">[name]</span>.md with steps, checkpoints, evidence rules and edge cases.
+Test every tool on my own website first and show me the results.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">8</div><div class="t"><b>Choose the competitors</b><span>Checkpoint A</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Start the first run. Propose <span class="ph">[5–8]</span> direct and <span class="ph">[2–3]</span> indirect competitors with a one-line
+rationale and a source for each. Search for new entrants I might not know about.
+Put everyone else in a short "rest of the market" table. Wait for my approval.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">9</div><div class="t"><b>Research in parallel</b><span>Checkpoint B</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Research each approved competitor in parallel, one sub-agent per company, all with
+the same written brief: only cite pages actually opened, label company self-claims
+as claims, label inference, and say "not publicly disclosed" when there is no evidence.
+Run the website and speed tools on every site. Merge everything, run the validator
+until it passes, then show me the findings before writing any analysis.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">10</div><div class="t"><b>Write the analysis</b><span>Checkpoint C</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Write the analysis from the approved evidence only: score the comparison matrix 1–5,
+draw a positioning map, list what works for competitors, their weak spots and the
+market gaps, and give ranked recommendations with impact, effort and timeframe.
+Write the executive summary last. Every claim must cite the evidence it rests on.
+Be honest about my own weaknesses — the readers are <span class="ph">[investors / leadership]</span>.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">11</div><div class="t"><b>Polish and sign off</b><span>Checkpoint D</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Render the final PDF. Keep it to <span class="ph">[30–50]</span> pages, check fonts are embedded, no blank
+pages, every section filled, and look at every page as an image before you hand it over.
+Then add what we learned in this run to the workflow's "lessons learned" section.</pre>
+  </div>
+
+  <div class="prompt">
+    <div class="prompt-head"><div class="n">12</div><div class="t"><b>Re-run next quarter</b><span>The payoff of building it as a workflow</span></div><button class="copy" type="button">Copy</button></div>
+<pre>Run workflows/<span class="ph">[name]</span>.md for <span class="ph">[month year]</span>. Re-check the facts in the latest source check,
+compare against the previous run in output/, and add a short "what changed since last
+time" section. Stop at every checkpoint as usual.</pre>
+  </div>
+
+  <h3>Habits that made the difference</h3>
+  <div class="grid2">
+    <div class="card"><h4>Plan before code</h4><p>Plan mode plus "don't write code until I approve" kept the build in the right order.</p></div>
+    <div class="card"><h4>Design before research</h4><p>Approving a placeholder PDF first meant no research effort was wasted on a layout that would change.</p></div>
+    <div class="card"><h4>Delegate a decision explicitly</h4><p>"You take the decision" works — Claude then states the choice and its reason in one line.</p></div>
+    <div class="card"><h4>Never paste secrets into chat</h4><p>Put API keys straight into <code>.env</code>, and restrict each key to the one API it needs.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ REUSE ═══════════════ -->
+<section>
+  <div class="kicker">10 · Reuse</div>
+  <h2>Adapting it to another market</h2>
+  <p>Only three inputs change: <code>business-profile.md</code>, the files in <code>brand/</code>, and the market named in prompt 8. The schema, tools, validator, template and SOP are reused as they are. The same pattern — agent decides, code executes, human approves, validator gates — fits any research deliverable where trust matters: due diligence, supplier screening, grant landscapes or policy monitoring.</p>
+</section>
+
+</main>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.prompt').querySelector('pre');
+      var text = pre ? pre.innerText : '';
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      try {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } catch (e) { done(false); }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{
+  "_source": "Example brand for demonstration. Replace every value with your own.",
+  "newsletter_name": "Field Notes",
+  "tagline": "One topic, explained with sources.",
+  "footer_left": "Field Notes · example newsletter",
+  "footer_right": "Every number has a source.",
+  "author": "The Field Notes team",
+  "from_name": "Field Notes",
+  "default_to": "",
+  "logo_file": "brand_assests/derived/logo.png",
+  "cta": {
+    "enabled": false,
+    "label": "Read more →",
+    "url": "",
+    "_note": "Set enabled=true and url once there's a page to link to"
+  },
+  "font_stack": "Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  "font_dir": "brand_assests/fonts",
+  "colors": {
+    "brand_red": "#DC2626",
+    "ink": "#0F0F1A",
+    "hover": "#B91C1C",
+    "tint": "#FEF2F2",
+    "text": "#111827",
+    "secondary": "#6B7280",
+    "caption": "#9CA3AF",
+    "border": "#E5E7EB",
+    "surface": "#F9FAFB",
+    "white": "#FFFFFF",
+    "chart_palette": [
+      "#0F0F1A",
+      "#6B7280",
+      "#9CA3AF",
+      "#E5E7EB"
+    ],
+    "chart_highlight": "#DC2626"
+  },
+  "semantic_colors": {
+    "_rule": "One meaning each. Never use as decoration.",
+    "positive": "#22C55E",
+    "negative": "#EF4444",
+    "warning": "#F59E0B"
+  },
+  "shape": {
+    "radius_button": 12,
+    "radius_card": 16,
+    "spacing_unit": 8,
+    "min_touch": 44
+  },
+  "voice": {
+    "summary": "A well-read colleague explaining something clearly.",
+    "traits": [
+      "direct",
+      "warm",
+      "precise",
+      "short sentences",
+      "second person"
+    ],
+    "casing": "Title Case for products, sentence case for buttons, UPPERCASE for eyebrows",
+    "glyphs": "→ for CTAs, ✓ / ✕ for answers, · between metadata"
+  },
+  "rules": {
+    "do": [
+      "Use red only for the one main action and key emphasis.",
+      "Keep the top nav ink (#0F0F1A) in every mode.",
+      "Stay flat: borders and ink surfaces, not shadows.",
+      "Pair every correct/wrong colour with ✓ or ✕.",
+      "Keep touch targets at 44px or more."
+    ],
+    "dont": [
+      "Never use blue, purple, indigo, teal, violet, fuchsia or pink.",
+      "Don't add icon libraries; emoji on a pastel tile are the icon system.",
+      "Don't set body text in gray-400 (#9CA3AF) — captions only.",
+      "Don't recolour, stretch or redraw the logo.",
+      "Don't use semantic colours as decoration."
+    ]
+  },
+  "image_style": "Flat, minimal editorial illustration. Strict colour palette: ink black #0F0F1A, brand red #DC2626, white, and light greys #F9FAFB / #E5E7EB only. No other colours at all — no blue, purple, teal, green or pink. Clean geometric shapes, generous negative space, flat fills, no gradients, no shadows, no 3D, no texture, no photorealism. Absolutely no text, letters, numbers, logos or watermarks anywhere in the image.",
+  "defaults": {
+    "audience": "curious non-specialists",
+    "tone": "a well-read colleague: direct, warm, precise, short sentences, second person",
+    "length_words": 900,
+    "sections": 4
+  }
+}

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Newsletter Pipeline Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; diagrams sit full-width between sections; prompts are "slips" you copy, commands are terminal strips; phases run top to bottom as a real sequence. */
+:root {
+  color-scheme: light;
+  --paper: #F7F8F6;
+  --sheet: #FFFFFF;
+  --ink: #16201C;
+  --muted: #5B6862;
+  --rule: #CFD8D3;
+  --accent: #0E7C5A;
+  --accent-soft: #E3F2EC;
+  --slip: #FFFBEA;
+  --slip-edge: #E9DFB4;
+  --term: #15211C;
+  --term-ink: #D7F0E4;
+  --warn: #B4471B;
+  --warn-soft: #FBEAE2;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0F1513; --sheet: #151D1A; --ink: #E4ECE8; --muted: #9AA9A2; --rule: #33413B;
+    --accent: #4CC79A; --accent-soft: #17302A; --slip: #2A2715; --slip-edge: #4A4426;
+    --term: #0A0F0D; --term-ink: #BFE8D5; --warn: #F08A5D; --warn-soft: #3A2219;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0F1513; --sheet: #151D1A; --ink: #E4ECE8; --muted: #9AA9A2; --rule: #33413B;
+  --accent: #4CC79A; --accent-soft: #17302A; --slip: #2A2715; --slip-edge: #4A4426;
+  --term: #0A0F0D; --term-ink: #BFE8D5; --warn: #F08A5D; --warn-soft: #3A2219;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.6; padding: 0 16px; }
+.wrap { max-width: 800px; margin: 0 auto; padding-block: 48px 72px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(34px, 6vw, 52px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 19px; font-weight: 600; }
+p { margin: 0; max-width: 66ch; }
+a { color: var(--accent); }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.lede { font-size: 19px; color: var(--muted); margin-top: 14px; }
+header { display: grid; gap: 10px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 18px; font-size: 15px; }
+nav.toc a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--rule); }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-color: var(--accent); }
+
+section { margin-top: 56px; display: grid; gap: 18px; }
+.section-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.section-head p { color: var(--muted); }
+
+/* diagrams */
+figure { margin: 0; display: grid; gap: 8px; }
+.diagram { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 14px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; height: auto; min-width: 640px; }
+figcaption { font-size: 14px; color: var(--muted); }
+figcaption strong { color: var(--ink); }
+.dg text { font-family: var(--font-body); font-size: 14px; fill: var(--ink); }
+.dg .t-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.dg .t-mono { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.dg .t-label { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); letter-spacing: 0.06em; }
+.dg .t-accent { fill: var(--accent); }
+.dg .t-warn { fill: var(--warn); }
+.dg .t-invert { fill: var(--term-ink); }
+.dg .box { fill: var(--sheet); stroke: var(--rule); stroke-width: 1.5; }
+.dg .box-soft { fill: var(--paper); stroke: var(--rule); stroke-width: 1.5; }
+.dg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.dg .box-dark { fill: var(--term); stroke: var(--term); }
+.dg .box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+.dg .ln { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.dg .ln-accent { stroke: var(--accent); stroke-width: 2; fill: none; }
+.dg .ln-dash { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-dasharray: 5 5; }
+.dg .head { fill: var(--muted); }
+.dg .head-accent { fill: var(--accent); }
+
+/* steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; counter-reset: step; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 40px 1fr; gap: 4px 14px; }
+.steps > li::before { content: counter(step); grid-row: span 4; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-family: var(--font-display); font-weight: 800; display: grid; place-items: center; font-size: 16px; }
+.steps > li > * { grid-column: 2; }
+.steps .note { color: var(--muted); font-size: 15px; }
+
+/* prompt slips */
+.slip { background: var(--slip); border: 1px solid var(--slip-edge); border-radius: 8px; padding: 14px 16px; margin-top: 8px; }
+.slip .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.slip pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 14px; line-height: 1.55; color: var(--ink); }
+.copy { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--slip-edge); background: var(--sheet); color: var(--ink); border-radius: 5px; padding: 4px 9px; cursor: pointer; min-height: 28px; }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* terminal strips */
+.term { background: var(--term); color: var(--term-ink); border-radius: 8px; padding: 12px 14px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; overflow-x: auto; margin: 8px 0 0; white-space: pre; }
+.term .c { color: #7E9A8D; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+
+/* tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--paper); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { white-space: nowrap; }
+
+/* gmail options */
+.options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.opt { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.opt.best { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.opt.no { background: var(--warn-soft); border-color: var(--warn); }
+.opt .verdict { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+.opt.best .verdict { color: var(--accent); }
+.opt.no .verdict { color: var(--warn); }
+.opt .verdict.ok { color: var(--muted); }
+.opt ul { margin: 0; padding-left: 18px; font-size: 15px; }
+@media (max-width: 640px) { .options { grid-template-columns: 1fr; } }
+
+.gotchas { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.gotchas li { padding-left: 18px; border-left: 3px solid var(--rule); }
+.gotchas li.danger { border-left-color: var(--warn); }
+
+.tree { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; overflow-x: auto; white-space: pre; margin: 0; }
+.tree .c { color: var(--muted); }
+
+footer { margin-top: 64px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .steps > li { grid-template-columns: 32px 1fr; gap: 4px 10px; }
+  .steps > li::before { width: 26px; height: 26px; font-size: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Claude Code · WAT framework · reusable</div>
+  <h1>Newsletter Pipeline Playbook</h1>
+  <p class="lede">Build a researched, branded HTML newsletter with charts and an AI hero image, delivered as a Gmail draft. Set it up once, then every issue takes one prompt.</p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#big-picture">Big picture</a>
+    <a href="#need">What you need</a>
+    <a href="#build">Phase A · Build</a>
+    <a href="#issue">Phase B · Each issue</a>
+    <a href="#email">How the email is built</a>
+    <a href="#gmail">Gmail login</a>
+    <a href="#reuse">Phase C · New project</a>
+    <a href="#reference">Reference</a>
+    <a href="#gotchas">Gotchas</a>
+  </nav>
+</header>
+
+<!-- ============ BIG PICTURE ============ -->
+<section id="big-picture">
+  <div class="section-head">
+    <div class="eyebrow">Start here</div>
+    <h2>The big picture</h2>
+    <p>You give one instruction. Claude reads the workflow file to know the steps, reads the brand file to know the look, and runs small Python tools that do the actual work. Only three things leave your computer: web research, the image API and Gmail.</p>
+  </div>
+
+  <figure>
+    <div class="diagram">
+      <svg class="dg" viewBox="0 0 760 360" role="img" aria-labelledby="d1t">
+        <title id="d1t">Architecture: you prompt Claude Code, which reads workflows/newsletter.md and config/brand.json, then runs six tools. Research reaches the web, kie_image.py reaches kie.ai, and gmail_send.py reaches Gmail.</title>
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <!-- layer labels -->
+        <text class="t-label" x="20" y="14">YOU</text>
+        <text class="t-label" x="190" y="14">LAYER 2 · AGENT</text>
+        <text class="t-label" x="410" y="14">LAYER 3 · TOOLS</text>
+        <text class="t-label" x="620" y="14">OUTSIDE</text>
+
+        <!-- you -->
+        <rect class="box" x="20" y="146" width="130" height="64" rx="8"/>
+        <text class="t-title" x="85" y="173" text-anchor="middle">You</text>
+        <text class="t-mono" x="85" y="194" text-anchor="middle">one prompt</text>
+        <path class="ln-accent" d="M150,178 L186,178" marker-end="url(#a1a)"/>
+
+        <!-- workflow (layer 1) -->
+        <rect class="box-soft" x="190" y="26" width="180" height="64" rx="8"/>
+        <text class="t-title" x="280" y="52" text-anchor="middle">workflows/</text>
+        <text class="t-mono" x="280" y="72" text-anchor="middle">newsletter.md · Layer 1</text>
+        <path class="ln" d="M280,90 L280,124" marker-end="url(#a1)"/>
+        <text class="t-mono" x="288" y="112">reads steps</text>
+
+        <!-- claude -->
+        <rect class="box-accent" x="190" y="128" width="180" height="100" rx="10"/>
+        <text class="t-title" x="280" y="164" text-anchor="middle">Claude Code</text>
+        <text x="280" y="186" text-anchor="middle">decides the order,</text>
+        <text x="280" y="206" text-anchor="middle">fixes errors</text>
+
+        <!-- brand -->
+        <rect class="box-soft" x="190" y="270" width="180" height="64" rx="8"/>
+        <text class="t-title" x="280" y="296" text-anchor="middle">config/brand.json</text>
+        <text class="t-mono" x="280" y="316" text-anchor="middle">colours · fonts · voice</text>
+        <path class="ln" d="M280,270 L280,232" marker-end="url(#a1)"/>
+        <text class="t-mono" x="288" y="256">reads look</text>
+
+        <!-- runs -->
+        <path class="ln-accent" d="M370,178 L404,178" marker-end="url(#a1a)"/>
+        <text class="t-mono t-accent" x="374" y="170">runs</text>
+
+        <!-- tools -->
+        <rect class="box" x="410" y="26" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="51" text-anchor="middle" style="fill:var(--ink)">WebSearch/WebFetch</text>
+        <rect class="box" x="410" y="76" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="101" text-anchor="middle" style="fill:var(--ink)">make_charts.py</text>
+        <rect class="box" x="410" y="126" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="151" text-anchor="middle" style="fill:var(--ink)">kie_image.py</text>
+        <rect class="box" x="410" y="176" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="201" text-anchor="middle" style="fill:var(--ink)">render_newsletter.py</text>
+        <rect class="box" x="410" y="226" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="251" text-anchor="middle" style="fill:var(--ink)">check_newsletter.py</text>
+        <rect class="box" x="410" y="276" width="170" height="40" rx="6"/>
+        <text class="t-mono" x="495" y="301" text-anchor="middle" style="fill:var(--ink)">gmail_send.py</text>
+        <text class="t-mono" x="495" y="340" text-anchor="middle">everything else stays local</text>
+
+        <!-- outside -->
+        <rect class="box-dark" x="620" y="26" width="120" height="40" rx="6"/>
+        <text class="t-invert" x="680" y="51" text-anchor="middle">The web</text>
+        <path class="ln" d="M580,46 L616,46" marker-end="url(#a1)"/>
+        <rect class="box-dark" x="620" y="126" width="120" height="40" rx="6"/>
+        <text class="t-invert" x="680" y="151" text-anchor="middle">kie.ai</text>
+        <path class="ln" d="M580,146 L616,146" marker-end="url(#a1)"/>
+        <rect class="box-dark" x="620" y="276" width="120" height="40" rx="6"/>
+        <text class="t-invert" x="680" y="301" text-anchor="middle">Gmail</text>
+        <path class="ln" d="M580,296 L616,296" marker-end="url(#a1)"/>
+      </svg>
+    </div>
+    <figcaption><strong>Why it's split up this way:</strong> Claude is good at deciding and writing. Scripts are good at doing the same thing correctly every time. Keeping execution in tools is what makes the result reliable.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="diagram">
+      <svg class="dg" viewBox="0 0 760 210" role="img" aria-labelledby="d2t">
+        <title id="d2t">Three phases: Phase A builds the pipeline once. Phase B repeats for every issue. Phase C copies the pipeline into a new project and re-brands it, which reuses Phase A steps 3 to 5.</title>
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box" x="20" y="56" width="220" height="84" rx="10"/>
+        <text class="t-label" x="36" y="80">PHASE A · ONCE</text>
+        <text class="t-title" x="36" y="104">Build the pipeline</text>
+        <text class="t-mono" x="36" y="126">6 prompts · ~1–2 hours</text>
+        <path class="ln-accent" d="M240,98 L296,98" marker-end="url(#a2a)"/>
+
+        <rect class="box-accent" x="300" y="56" width="220" height="84" rx="10"/>
+        <text class="t-label" x="316" y="80">PHASE B · EVERY ISSUE</text>
+        <text class="t-title" x="316" y="104">Make an issue</text>
+        <text class="t-mono" x="316" y="126">1 prompt · ~10 minutes</text>
+        <!-- loop -->
+        <path class="ln-accent" d="M370,56 C370,10 450,10 450,52" marker-end="url(#a2a)"/>
+        <text class="t-mono t-accent" x="410" y="20" text-anchor="middle">repeat</text>
+
+        <rect class="box" x="580" y="56" width="160" height="84" rx="10"/>
+        <text class="t-label" x="596" y="80">PHASE C · NEW BRAND</text>
+        <text class="t-title" x="596" y="104">Reuse it</text>
+        <text class="t-mono" x="596" y="126">copy + re-brand</text>
+        <path class="ln-dash" d="M660,140 C660,200 130,200 130,144" marker-end="url(#a2)"/>
+        <text class="t-mono" x="395" y="196" text-anchor="middle">skips most of A: only re-brand + keys (A3–A5)</text>
+      </svg>
+    </div>
+    <figcaption>The setup cost comes once. After that, each new issue or new brand is quick.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ NEED ============ -->
+<section id="need">
+  <div class="section-head">
+    <div class="eyebrow">Before you start</div>
+    <h2>What you need</h2>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Item</th><th>Why</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td>Claude Code</td><td>Plans, researches, writes and runs the tools</td><td>Your plan</td></tr>
+      <tr><td>Project folder</td><td>With <code>CLAUDE.md</code>, <code>tools/</code>, <code>workflows/</code>, <code>.tmp/</code>, <code>.env</code> and a Python venv</td><td>Free</td></tr>
+      <tr><td>Brand sheet + logo</td><td>Colours, fonts, voice and do/don't rules for the template</td><td>Free</td></tr>
+      <tr><td>Image API key</td><td>Hero images (kie.ai, Nano Banana 2)</td><td>~8 credits/image</td></tr>
+      <tr><td>Gmail access</td><td>An app password or an OAuth Desktop client. See <a href="#gmail">Gmail login</a>.</td><td>Free</td></tr>
+      <tr><td>Google Chrome</td><td>Headless screenshots of the email at desktop and phone width</td><td>Free</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ PHASE A ============ -->
+<section id="build">
+  <div class="section-head">
+    <div class="eyebrow">Phase A · once per project</div>
+    <h2>Build the pipeline</h2>
+    <p>Six prompts, in this order. Start the first one in plan mode (Shift+Tab) so Claude proposes before it builds.</p>
+  </div>
+  <ol class="steps">
+    <li>
+      <h3>Plan the stack</h3>
+      <p class="note">Claude asks a few questions (delivery, infographic style, research method, trigger) and writes a plan you approve.</p>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>I want to build a newsletter automation workflow. I tell you "newsletter about &lt;topic&gt;" and you research it, structure it as HTML, make it look good, and create a few infographics to go with it. Help me pick the tech stack, and suggest what I haven't thought of yet.</pre></div>
+    </li>
+    <li>
+      <h3>Build the tools</h3>
+      <p class="note">This gives you the five scripts in <code>tools/</code>, a Jinja2 email template, <code>config/brand.json</code> and <code>workflows/newsletter.md</code>.</p>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>Approved. Build it: Jinja2 + premailer for Gmail-safe HTML, matplotlib charts, images as CID attachments, a QA script (102KB clip limit, alt text, every stat needs a source), and Gmail drafts by default. Test it end to end on a sample issue with placeholder data and screenshot it at desktop and mobile width.</pre></div>
+    </li>
+    <li>
+      <h3>Apply your brand</h3>
+      <p class="note">Attach the brand sheet with @. Claude reads the colours, type and rules, crops the logo pixel-for-pixel, and adds a QA check that fails on banned colours.</p>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>Make sure the whole newsletter is branded based on @brand_assets/&lt;Brand-Sheet&gt;.png and the logo @brand_assets/&lt;logo&gt;.png. Follow every do/don't rule on the sheet, use the brand fonts in the charts too, and make the QA check fail on off-brand colours.</pre></div>
+    </li>
+    <li>
+      <h3>Connect hero images</h3>
+      <p class="note">Put the key in <code>.env</code> yourself. Don't paste it into the chat.</p>
+      <div class="term"><span class="c"># .env</span>
+KIE_API_KEY=your-key-here</div>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>KIE_API_KEY is in .env. Build tools/kie_image.py for hero images (Nano Banana 2, 16:9). Append the brand image style to every prompt automatically: flat, brand palette only, no text. Add --balance and --dry-run so I can check costs, then generate one test hero.</pre></div>
+    </li>
+    <li>
+      <h3>Connect Gmail</h3>
+      <p class="note">Pick a login method using the <a href="#gmail">Gmail login</a> guide below, then:</p>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>Gmail login is set up (app password in .env / credentials.json in the root). Create a draft of the sample issue. If OAuth needs consent, run it with python -u in the background and give me the sign-in link.</pre></div>
+    </li>
+    <li>
+      <h3>Lock in what you learned</h3>
+      <p class="note">The workflow file is Claude's instruction sheet for every future issue, so keep it current.</p>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>Update workflows/newsletter.md with everything we learned: setup steps, the content.json schema, brand rules, costs, and every error we hit and how we fixed it.</pre></div>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ PHASE B ============ -->
+<section id="issue">
+  <div class="section-head">
+    <div class="eyebrow">Phase B · every issue</div>
+    <h2>Make an issue</h2>
+    <p>One prompt starts all seven stages. Each stage leaves a file in <code>.tmp/&lt;date&gt;-&lt;topic&gt;/</code>, so you can see and change any step.</p>
+  </div>
+
+  <figure>
+    <div class="diagram">
+      <svg class="dg" viewBox="0 0 760 560" role="img" aria-labelledby="d3t">
+        <title id="d3t">The seven stages of an issue: brief, research, write, visuals, render, QA and deliver. Each shows who does it and which files it produces. A failed QA loops back to the write stage.</title>
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a3w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path style="fill:var(--warn)" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="t-label" x="40" y="14">STAGE · WHO</text>
+        <text class="t-label" x="330" y="14">PRODUCES</text>
+
+        <!-- row template: y = 24 + i*76 -->
+        <!-- 1 brief -->
+        <rect class="box" x="40" y="24" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="48">1 · Brief</text>
+        <text class="t-mono" x="58" y="68">you</text>
+        <path class="ln" d="M290,52 L326,52" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="56" style="fill:var(--ink)">topic · audience · angle · length</text>
+        <path class="ln" d="M165,80 L165,96" marker-end="url(#a3)"/>
+
+        <!-- 2 research -->
+        <rect class="box" x="40" y="100" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="124">2 · Research</text>
+        <text class="t-mono" x="58" y="144">Claude + WebSearch</text>
+        <path class="ln" d="M290,128 L326,128" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="124" style="fill:var(--ink)">research.json</text>
+        <text class="t-mono" x="334" y="142">every fact + URL; rejects kept too</text>
+        <path class="ln" d="M165,156 L165,172" marker-end="url(#a3)"/>
+
+        <!-- 3 write -->
+        <rect class="box-accent" x="40" y="176" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="200">3 · Write</text>
+        <text class="t-mono" x="58" y="220">Claude</text>
+        <path class="ln" d="M290,204 L326,204" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="200" style="fill:var(--ink)">content.json</text>
+        <text class="t-mono" x="334" y="218">the single source every tool reads</text>
+        <path class="ln" d="M165,232 L165,248" marker-end="url(#a3)"/>
+
+        <!-- 4 visuals -->
+        <rect class="box" x="40" y="252" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="276">4 · Visuals</text>
+        <text class="t-mono" x="58" y="296">make_charts + kie_image</text>
+        <path class="ln" d="M290,280 L326,280" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="276" style="fill:var(--ink)">img/chart_*.png · img/hero.png</text>
+        <text class="t-mono" x="334" y="294">hero costs ~8 credits</text>
+        <path class="ln" d="M165,308 L165,324" marker-end="url(#a3)"/>
+
+        <!-- 5 render -->
+        <rect class="box" x="40" y="328" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="352">5 · Render</text>
+        <text class="t-mono" x="58" y="372">render_newsletter.py</text>
+        <path class="ln" d="M290,356 L326,356" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="352" style="fill:var(--ink)">email.html · preview.html</text>
+        <text class="t-mono" x="334" y="370">email.txt · images.json</text>
+        <path class="ln" d="M165,384 L165,400" marker-end="url(#a3)"/>
+
+        <!-- 6 QA -->
+        <rect class="box" x="40" y="404" width="250" height="56" rx="8"/>
+        <text class="t-title" x="58" y="428">6 · QA</text>
+        <text class="t-mono" x="58" y="448">check_newsletter.py</text>
+        <path class="ln" d="M290,432 L326,432" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="428" style="fill:var(--ink)">PASS → continue</text>
+        <text class="t-mono t-warn" x="334" y="446">FAIL → fix content.json, re-render</text>
+        <!-- fail loop back to write -->
+        <path d="M40,432 L20,432 L20,204 L36,204" style="stroke:var(--warn);stroke-width:1.5;fill:none;stroke-dasharray:5 4" marker-end="url(#a3w)"/>
+        <path class="ln" d="M165,460 L165,476" marker-end="url(#a3)"/>
+
+        <!-- 7 deliver -->
+        <rect class="box-dark" x="40" y="480" width="250" height="56" rx="8"/>
+        <text class="t-title t-invert" x="58" y="504">7 · Deliver</text>
+        <text class="t-mono" x="58" y="524" style="fill:#7E9A8D">gmail_send.py</text>
+        <path class="ln" d="M290,508 L326,508" marker-end="url(#a3)"/>
+        <text class="t-mono" x="334" y="504" style="fill:var(--ink)">Gmail draft · issues_log.json</text>
+        <text class="t-mono" x="334" y="522">sends only when you say "send"</text>
+      </svg>
+    </div>
+    <figcaption><strong>Tip:</strong> to change something, change <code>content.json</code> (stage 3) and let Claude re-run stages 4–6. Don't edit the HTML by hand.</figcaption>
+  </figure>
+
+  <div class="slip"><div class="label">Prompt · basic <button class="copy" type="button">Copy</button></div><pre>Write a new newsletter about &lt;topic&gt;.</pre></div>
+  <div class="slip"><div class="label">Prompt · with a brief <button class="copy" type="button">Copy</button></div><pre>Write a new newsletter about &lt;topic&gt;.
+Audience: &lt;who&gt;. Angle: &lt;beginner explainer / latest news / contrarian take&gt;.
+Length: ~&lt;900&gt; words, &lt;4&gt; sections, 2–3 charts.
+Only use primary sources (filings, peer-reviewed studies, official announcements). Tell me what you rejected and why.</pre></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Follow-up prompt</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>"Show me the preview"</td><td>Opens <code>preview.html</code> in your browser</td></tr>
+      <tr><td>"Make section 2 shorter and punchier"</td><td>Edits <code>content.json</code>, then re-renders and re-checks</td></tr>
+      <tr><td>"Regenerate the hero: &lt;new idea&gt;"</td><td>New kie.ai image (~8 credits)</td></tr>
+      <tr><td>"Highlight &lt;X&gt; in the chart"</td><td>Moves the single accent colour to that bar, slice or point</td></tr>
+      <tr><td>"Give me 3 more subject lines"</td><td>Options of 50 characters or less, added to <code>subject_alternatives</code></td></tr>
+      <tr><td>"Send the draft to &lt;email&gt;"</td><td>Runs <code>gmail_send.py --send --to …</code>. It only sends when you ask.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ EMAIL ASSEMBLY ============ -->
+<section id="email">
+  <div class="section-head">
+    <div class="eyebrow">Under the hood</div>
+    <h2>How the email is built</h2>
+    <p>Gmail removes most CSS and blocks embedded <code>data:</code> images. So the CSS is written inline on every element, and the images travel as attachments that the HTML points to with <code>cid:</code> links.</p>
+  </div>
+  <figure>
+    <div class="diagram">
+      <svg class="dg" viewBox="0 0 760 330" role="img" aria-labelledby="d4t">
+        <title id="d4t">content.json, brand.json and the template go into render_newsletter.py, which produces email.html with inline CSS. gmail_send.py then packs it into a multipart/related message: a multipart/alternative part holding the plain-text and HTML versions, followed by each image as a part with a Content-ID.</title>
+        <defs>
+          <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="a4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-accent" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <text class="t-label" x="20" y="14">INPUTS</text>
+        <text class="t-label" x="240" y="14">RENDER</text>
+        <text class="t-label" x="460" y="14">WHAT GMAIL RECEIVES</text>
+
+        <rect class="box" x="20" y="30" width="180" height="48" rx="6"/>
+        <text class="t-mono" x="110" y="59" text-anchor="middle" style="fill:var(--ink)">content.json</text>
+        <rect class="box" x="20" y="92" width="180" height="48" rx="6"/>
+        <text class="t-mono" x="110" y="121" text-anchor="middle" style="fill:var(--ink)">config/brand.json</text>
+        <rect class="box" x="20" y="154" width="180" height="48" rx="6"/>
+        <text class="t-mono" x="110" y="183" text-anchor="middle" style="fill:var(--ink)">newsletter.html.j2</text>
+        <rect class="box" x="20" y="232" width="180" height="48" rx="6"/>
+        <text class="t-mono" x="110" y="261" text-anchor="middle" style="fill:var(--ink)">img/*.png</text>
+
+        <path class="ln" d="M200,54 C222,54 222,100 236,104" marker-end="url(#a4)"/>
+        <path class="ln" d="M200,116 L236,116" marker-end="url(#a4)"/>
+        <path class="ln" d="M200,178 C222,178 222,132 236,128" marker-end="url(#a4)"/>
+
+        <rect class="box-accent" x="240" y="80" width="180" height="76" rx="10"/>
+        <text class="t-title" x="330" y="106" text-anchor="middle">render</text>
+        <text class="t-mono" x="330" y="126" text-anchor="middle">Jinja2 → premailer</text>
+        <text class="t-mono" x="330" y="144" text-anchor="middle">= inline CSS</text>
+
+        <path class="ln-accent" d="M420,118 L456,118" marker-end="url(#a4a)"/>
+        <text class="t-mono t-accent" x="330" y="182" text-anchor="middle">then gmail_send.py packs →</text>
+        <path class="ln" d="M200,256 L456,256" marker-end="url(#a4)"/>
+        <text class="t-mono" x="330" y="248" text-anchor="middle">attached, not embedded</text>
+
+        <!-- MIME -->
+        <rect class="box-soft" x="460" y="26" width="280" height="290" rx="10"/>
+        <text class="t-mono" x="476" y="48" style="fill:var(--ink)">multipart/related</text>
+        <rect class="box" x="476" y="60" width="248" height="112" rx="8"/>
+        <text class="t-mono" x="490" y="80" style="fill:var(--ink)">multipart/alternative</text>
+        <rect class="box-soft" x="490" y="90" width="220" height="32" rx="5"/>
+        <text class="t-mono" x="502" y="111">text/plain · email.txt</text>
+        <rect class="box-accent" x="490" y="130" width="220" height="32" rx="5"/>
+        <text class="t-mono" x="502" y="151" style="fill:var(--ink)">text/html · src="cid:hero"</text>
+        <rect class="box" x="476" y="184" width="248" height="34" rx="5"/>
+        <text class="t-mono" x="490" y="206">image/png  &lt;hero&gt;</text>
+        <rect class="box" x="476" y="226" width="248" height="34" rx="5"/>
+        <text class="t-mono" x="490" y="248">image/png  &lt;chart_…&gt;</text>
+        <rect class="box" x="476" y="268" width="248" height="34" rx="5"/>
+        <text class="t-mono" x="490" y="290">image/png  &lt;logo&gt;</text>
+      </svg>
+    </div>
+    <figcaption><strong>Result:</strong> the HTML is about 25KB, well under Gmail's ~102KB clip limit, and images show without any hosting. <code>cid:hero</code> in the HTML matches the attachment with Content-ID <code>&lt;hero&gt;</code>.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ GMAIL ============ -->
+<section id="gmail">
+  <div class="section-head">
+    <div class="eyebrow">Phase A · step 5</div>
+    <h2>Which Gmail login?</h2>
+    <p>Creating drafts or sending needs <em>your</em> permission on the account. A plain API key can't give that.</p>
+  </div>
+  <div class="options">
+    <div class="opt best">
+      <div class="verdict">✓ Easiest</div>
+      <h3>App password</h3>
+      <ul>
+        <li>Turn on 2-Step Verification</li>
+        <li>Create one at myaccount.google.com/apppasswords</li>
+        <li>Add <code>GMAIL_ADDRESS</code> and <code>GMAIL_APP_PASSWORD</code> to <code>.env</code></li>
+      </ul>
+      <p class="note" style="font-size:14px;color:var(--muted)">Drafts go in over IMAP, sending goes out over SMTP.</p>
+    </div>
+    <div class="opt">
+      <div class="verdict ok">✓ Works</div>
+      <h3>OAuth client</h3>
+      <ul>
+        <li>Google Cloud: enable the Gmail API</li>
+        <li>Consent screen → External, then add yourself as a test user</li>
+        <li>Clients → <em>Desktop app</em> → save as <code>credentials.json</code></li>
+        <li>First run: approve once in the browser</li>
+      </ul>
+    </div>
+    <div class="opt no">
+      <div class="verdict">✕ Won't work</div>
+      <h3>API key (AIza…)</h3>
+      <ul>
+        <li>Only reaches public data</li>
+        <li>Can't create drafts or send</li>
+        <li>If you pasted one somewhere, restrict or delete it</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHASE C ============ -->
+<section id="reuse">
+  <div class="section-head">
+    <div class="eyebrow">Phase C · new project</div>
+    <h2>Reuse it anywhere</h2>
+    <p>The pipeline doesn't depend on any one brand. Copy these files, swap the brand, run the sample.</p>
+  </div>
+<pre class="tree">your-new-project/
+├── CLAUDE.md                <span class="c"># WAT rules (copy as-is)</span>
+├── requirements.txt         <span class="c"># jinja2 premailer matplotlib requests python-dotenv google-*</span>
+├── .env                     <span class="c"># KIE_API_KEY, GMAIL_* (never commit)</span>
+├── config/brand.json        <span class="c"># ← the only file that changes per brand</span>
+├── templates/newsletter.html.j2
+├── tools/
+│   ├── make_charts.py   render_newsletter.py
+│   ├── check_newsletter.py   kie_image.py   gmail_send.py
+├── workflows/newsletter.md
+├── docs/newsletter-cheatsheet.html   <span class="c"># this page</span>
+└── brand_assets/            <span class="c"># sheet, cropped logo, font .ttf files</span></pre>
+  <ol class="steps">
+    <li>
+      <h3>Copy and install</h3>
+      <div class="term">cp -r old/{CLAUDE.md,requirements.txt,config,templates,tools,workflows,docs} new/
+cd new &amp;&amp; python -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt</div>
+    </li>
+    <li>
+      <h3>Re-brand with one prompt</h3>
+      <div class="slip"><div class="label">Prompt <button class="copy" type="button">Copy</button></div><pre>Read workflows/newsletter.md. Re-brand this pipeline for @brand_assets/&lt;new-sheet&gt;.png: rewrite config/brand.json (colours, fonts, voice, rules, image_style), crop the logo exactly, download the brand font for the charts, and adjust the template if the brand's components differ. Then run the sample issue and show me screenshots.</pre></div>
+    </li>
+    <li>
+      <h3>Add keys and test</h3>
+      <p class="note">Add the <code>.env</code> keys and the Gmail login (Phase A, steps 4–5), then ask for the first issue.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ REFERENCE ============ -->
+<section id="reference">
+  <div class="section-head">
+    <div class="eyebrow">Reference</div>
+    <h2>Commands and fields</h2>
+    <p>Claude runs these for you. You'd only need them to debug by hand.</p>
+  </div>
+<div class="term"><span class="c"># D=.tmp/2026-10-13-my-topic</span>
+.venv/bin/python tools/make_charts.py $D
+.venv/bin/python tools/kie_image.py --balance
+.venv/bin/python tools/kie_image.py --prompt "subject only" --out $D/img/hero.png
+.venv/bin/python tools/render_newsletter.py $D
+.venv/bin/python tools/check_newsletter.py $D            <span class="c"># add --offline to skip link checks</span>
+.venv/bin/python -u tools/gmail_send.py $D               <span class="c"># draft; --send --to a@b.com to send</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>content.json field</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>title</code></td><td>Headline. Wrap one word in <code>&lt;em&gt;</code> to colour it in the accent.</td></tr>
+      <tr><td><code>stats[]</code></td><td>Three stat cards: <code>value</code>, <code>label</code>, <code>source</code>, <code>emoji</code></td></tr>
+      <tr><td><code>charts[]</code></td><td><code>bar · hbar · line · donut · timeline</code>. <code>highlight</code> marks one item. <code>source</code> can be a list.</td></tr>
+      <tr><td><code>sections[]</code></td><td><code>eyebrow</code>, <code>heading</code>, <code>paragraphs</code>, optional <code>chart</code> and <code>callout</code></td></tr>
+      <tr><td><code>sources[]</code></td><td>Numbered list. QA fails if a stat or chart cites a missing id.</td></tr>
+      <tr><td><code>cta</code></td><td>Overrides <code>brand.json</code>. Hidden while <code>enabled: false</code> or with no URL.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ GOTCHAS ============ -->
+<section id="gotchas">
+  <div class="section-head">
+    <div class="eyebrow">Learned the hard way</div>
+    <h2>Gotchas</h2>
+  </div>
+  <ul class="gotchas">
+    <li class="danger"><strong>Never paste secrets into the chat.</strong> Edit <code>.env</code> or drop <code>credentials.json</code> into the folder yourself. If a key was pasted, rotate it.</li>
+    <li><strong>A Google API key won't work for Gmail.</strong> Drafts need your consent: an app password or OAuth.</li>
+    <li><strong>Gmail clips HTML over ~102KB</strong> and blocks <code>data:</code> images. Send images as CID attachments; a typical issue is 20–30KB.</li>
+    <li><strong>Jinja autoescape breaks CSS.</strong> Mark style values <code>| safe</code>, or quoted font names become <code>&amp;#39;</code> and the text falls back to serif.</li>
+    <li><strong>premailer downloads &lt;link&gt; stylesheets.</strong> Add <code>data-premailer="ignore"</code> to the Google Fonts link.</li>
+    <li><strong>Image models garble text.</strong> Put "no text, letters or numbers" in every image prompt. All data goes in code-drawn charts.</li>
+    <li><strong>kie.ai can time out (524).</strong> Failed tasks aren't charged. Check <code>--balance</code>, then retry once.</li>
+    <li><strong>Some sites block link checks (403).</strong> SEC, DOI/Wiley and investor sites block bots. A 403 there isn't a dead link.</li>
+    <li><strong>Market-size reports disagree wildly.</strong> Prefer filings, peer-reviewed studies and official announcements, and keep the rejects in <code>research.json</code>.</li>
+    <li><strong>The OAuth sign-in link can be hidden.</strong> Run <code>gmail_send.py</code> with <code>python -u</code> so the link prints straight away.</li>
+  </ul>
+</section>
+
+<footer>Built with Claude Code in a WAT (Workflows · Agents · Tools) project. Workflow file: <code>workflows/newsletter.md</code>. This page: <code>docs/newsletter-cheatsheet.html</code>.</footer>
+</div>
+<script>
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var text = btn.closest('.slip').querySelector('pre').innerText;
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { btn.textContent = 'Select & copy'; });
+    } catch (e) { btn.textContent = 'Select & copy'; }
+  });
+});
+</script>
+</body>
+</html>

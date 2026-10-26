@@ -1,0 +1,34 @@
+# ── Secrets (never commit) ──
+.env
+**/.env
+credentials.json
+token.json
+*.pem
+*.key
+
+# ── Python / editors ──
+.venv/
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+
+# ── Disposable intermediates ──
+**/.tmp/*
+!**/.tmp/.gitkeep
+
+# ── Projects not in this repo ──
+first_agentic_workflow_opencode/
+
+# ── first_agentic_workflow_claude: internal or licensed material ──
+first_agentic_workflow_claude/source_for_agents/
+first_agentic_workflow_claude/output/
+first_agentic_workflow_claude/brand/extracted/
+# Gilroy is a commercial font — not redistributable
+first_agentic_workflow_claude/brand/fonts/
+# Private company data (public templates: *.example.*)
+first_agentic_workflow_claude/project.json
+first_agentic_workflow_claude/business-profile.md
+first_agentic_workflow_claude/research/
+first_agentic_workflow_claude/brand/guidelines/

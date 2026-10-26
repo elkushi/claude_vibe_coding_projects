@@ -1,0 +1,21 @@
+{
+  "_comment": "Copy to project.json (gitignored) and fill in. Read by tools/project_config.py.",
+  "company": {
+    "name": "Your Company",
+    "website": "your-company.com"
+  },
+  "forbidden_terms": [
+    "Name Of A Partner Or Group Company That Must Never Appear"
+  ],
+  "market": {
+    "_comment": "Optional market-specific checks used by tools/seo_snapshot.py. Leave a value empty (\"\") to skip that check.",
+    "regulator": "",
+    "certificate_regex": "",
+    "local_script_regex": "",
+    "local_language_url_regex": "",
+    "local_link_terms": {
+      "pricing": "",
+      "contact": ""
+    }
+  }
+}

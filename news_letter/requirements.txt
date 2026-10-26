@@ -1,0 +1,7 @@
+python-dotenv
+requests
+jinja2
+premailer
+matplotlib
+google-api-python-client
+google-auth-oauthlib

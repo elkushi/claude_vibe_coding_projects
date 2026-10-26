@@ -1,0 +1,1041 @@
+{
+  "meta": {
+    "title": "Competitor & Market Analysis",
+    "subtitle": "Bangladesh A2P SMS and CPaaS",
+    "market": "A2P SMS / CPaaS",
+    "region": "Bangladesh",
+    "run_date": "2026-10-19",
+    "prepared_for": "Investors and partners",
+    "prepared_by": "Example Co marketing",
+    "confidentiality": "Sample — not real data",
+    "version": "SAMPLE — placeholder content for layout review",
+    "is_sample": true
+  },
+  "us": {
+    "name": "Example Co",
+    "licence": "Example licence",
+    "channels": {
+      "sms": true,
+      "otp": true,
+      "masking": true,
+      "api": true,
+      "whatsapp": true,
+      "viber": true,
+      "telegram": true,
+      "messenger": false,
+      "crm": false
+    },
+    "pagespeed_mobile": null,
+    "source_ids": [
+      "INT"
+    ]
+  },
+  "sources": [
+    {
+      "id": "INT",
+      "url": null,
+      "title": "Example Co Bangladesh business profile",
+      "publisher": "Example Co (internal)",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S1",
+      "url": "https://example.com/regulator/statistics",
+      "title": "Mobile and internet subscribers, June 2026",
+      "publisher": "Example Regulator",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S2",
+      "url": "https://example.com/news/aggregator-licences",
+      "title": "Regulator revokes aggregator certificates",
+      "publisher": "Example News",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S3",
+      "url": "https://example.com/news/sms-tariff",
+      "title": "Bulk SMS tariff directive",
+      "publisher": "Example Financial Daily",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S4",
+      "url": "https://competitor-a.example.com/",
+      "title": "Competitor A — homepage",
+      "publisher": "Competitor A",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S5",
+      "url": "https://competitor-a.example.com/pricing",
+      "title": "Competitor A — pricing",
+      "publisher": "Competitor A",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S6",
+      "url": "https://reviews.example.com/competitor-a",
+      "title": "Competitor A reviews",
+      "publisher": "Example Review Site",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S7",
+      "url": "https://competitor-b.example.com/",
+      "title": "Competitor B — homepage",
+      "publisher": "Competitor B",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S8",
+      "url": "https://competitor-b.example.com/api",
+      "title": "Competitor B — API documentation",
+      "publisher": "Competitor B",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S9",
+      "url": "https://competitor-c.example.com/",
+      "title": "Competitor C — Bangladesh page",
+      "publisher": "Competitor C",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S10",
+      "url": "https://example.com/news/partnership",
+      "title": "Competitor C announces local partnership",
+      "publisher": "Example Tech News",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S11",
+      "url": "https://pagespeed.web.dev/",
+      "title": "PageSpeed Insights results",
+      "publisher": "Google",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": "S12",
+      "url": "https://example.com/ott-usage",
+      "title": "Messaging app usage in Bangladesh",
+      "publisher": "Example Research",
+      "accessed": "2026-10-19"
+    }
+  ],
+  "executive_summary": {
+    "headline": "A regulated, price-capped market where nobody yet sells multichannel to enterprises.",
+    "key_numbers": [
+      {
+        "value": "189.8M",
+        "label": "active mobile subscriptions",
+        "source_ids": [
+          "S1"
+        ]
+      },
+      {
+        "value": "~85",
+        "label": "licensed A2P aggregators after revocations",
+        "source_ids": [
+          "S2"
+        ]
+      },
+      {
+        "value": "Tk 0.30",
+        "label": "regulated floor per SMS",
+        "source_ids": [
+          "S3"
+        ]
+      },
+      {
+        "value": "1 of 10",
+        "label": "competitors profiled offer OTT channels",
+        "source_ids": [
+          "S4",
+          "S7",
+          "S9"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "text": "Sample finding. Price is fixed by the regulator, so competitors differentiate on reach, reliability and relationships — not on rate.",
+        "source_ids": [
+          "S3"
+        ]
+      },
+      {
+        "text": "Sample finding. The strongest local player owns the banking segment through a decade-old SMS-banking platform.",
+        "source_ids": [
+          "S4"
+        ]
+      },
+      {
+        "text": "Sample finding. International CPaaS providers reach Bangladesh only through local licensed partners.",
+        "source_ids": [
+          "S9",
+          "S10"
+        ]
+      },
+      {
+        "text": "Sample finding. Example Co holds its own licence and three operator agreements — an asset most smaller rivals lack.",
+        "source_ids": [
+          "INT"
+        ]
+      }
+    ],
+    "bottom_line": "Sample bottom line. Example Co's entry case rests on being the only licensed local aggregator with a working multichannel cascade. The first 12 months should prove it with two or three reference enterprise clients."
+  },
+  "market_overview": {
+    "intro": [
+      {
+        "text": "Sample paragraph. All application-to-person SMS in Bangladesh must pass through regulator-enlisted aggregators, which connect to the four mobile operators.",
+        "source_ids": [
+          "S2"
+        ]
+      },
+      {
+        "text": "Sample paragraph. The regulator sets a tariff band per message, which removes price as a competitive lever.",
+        "source_ids": [
+          "S3"
+        ]
+      }
+    ],
+    "stats": [
+      {
+        "value": "189.8M",
+        "label": "Mobile subscriptions",
+        "source_ids": [
+          "S1"
+        ]
+      },
+      {
+        "value": "135.9M",
+        "label": "Internet subscriptions",
+        "source_ids": [
+          "S1"
+        ]
+      },
+      {
+        "value": "4",
+        "label": "Mobile operators",
+        "source_ids": [
+          "S1"
+        ]
+      }
+    ],
+    "operators": [
+      {
+        "name": "Grameenphone",
+        "value": 86.5
+      },
+      {
+        "name": "Robi",
+        "value": 57.4
+      },
+      {
+        "name": "Banglalink",
+        "value": 38.0
+      },
+      {
+        "name": "Teletalk",
+        "value": 6.6
+      }
+    ],
+    "operators_unit": "Subscribers, millions",
+    "operators_source_ids": [
+      "S1"
+    ],
+    "regulation": [
+      {
+        "title": "Licensing",
+        "text": "Sample. Only enlisted aggregators may carry A2P traffic. Dozens of certificates were revoked in 2025.",
+        "source_ids": [
+          "S2"
+        ]
+      },
+      {
+        "title": "Tariffs",
+        "text": "Sample. A regulated band of Tk 0.30–0.34 per SMS applies to aggregator-to-client pricing.",
+        "source_ids": [
+          "S3"
+        ]
+      },
+      {
+        "title": "Sender IDs",
+        "text": "Sample. Masked (branded) sender IDs up to 11 characters need authorisation documents.",
+        "source_ids": [
+          "S3"
+        ]
+      },
+      {
+        "title": "Language & timing",
+        "text": "Sample. Promotional SMS must be in Bangla and sent between 6:00 and 23:59.",
+        "source_ids": [
+          "S3"
+        ]
+      }
+    ],
+    "ott": [
+      {
+        "text": "Sample. Facebook Messenger and imo lead active messaging; WhatsApp ranks lower on active business use than its download numbers suggest.",
+        "source_ids": [
+          "S12"
+        ]
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "id": "competitor-a",
+      "name": "Competitor A",
+      "type": "direct",
+      "tier": "Local — market leader",
+      "website": "competitor-a.example.com",
+      "one_liner": "Sample. The incumbent for bank SMS, with deep operator links and a payments arm.",
+      "threat": "high",
+      "positioning": {
+        "quote": "Sample tagline in the competitor's own words.",
+        "quote_source_ids": [
+          "S4"
+        ],
+        "claims": [
+          {
+            "text": "Sample. Positions itself as the trusted infrastructure partner for financial institutions.",
+            "source_ids": [
+              "S4"
+            ]
+          }
+        ]
+      },
+      "segments": [
+        {
+          "text": "Sample. Banks, MFS providers and government services.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "named_clients": [
+        {
+          "text": "Sample. Lists more than 40 bank logos on its homepage.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "channels": {
+        "sms": true,
+        "otp": true,
+        "masking": true,
+        "api": true,
+        "whatsapp": false,
+        "viber": false,
+        "telegram": false,
+        "messenger": false,
+        "crm": false
+      },
+      "features": [
+        {
+          "text": "Sample. SMS banking platform with push and pull services.",
+          "source_ids": [
+            "S4"
+          ]
+        },
+        {
+          "text": "Sample. Dedicated OTP route with delivery reports.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "pricing": {
+        "model": "Enterprise quote",
+        "claims": [
+          {
+            "text": "Sample. No public price list; enterprise contracts only.",
+            "source_ids": [
+              "S5"
+            ]
+          }
+        ]
+      },
+      "licence": {
+        "status": "Own enlistment",
+        "claims": [
+          {
+            "text": "Sample. Appears on the regulator's enlisted aggregator list.",
+            "source_ids": [
+              "S2"
+            ]
+          }
+        ]
+      },
+      "web_seo": {
+        "pagespeed_mobile": 42,
+        "pagespeed_desktop": 71,
+        "claims": [
+          {
+            "text": "Sample. Strong brand search presence; slow mobile homepage.",
+            "source_ids": [
+              "S11"
+            ]
+          }
+        ]
+      },
+      "content_social": [
+        {
+          "text": "Sample. Active LinkedIn page; no blog or developer content.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "reviews": {
+        "praise": [
+          {
+            "text": "Sample. \"Reliable delivery during peak banking hours.\"",
+            "source_ids": [
+              "S6"
+            ]
+          }
+        ],
+        "complaints": [
+          {
+            "text": "Sample. \"Slow onboarding and support response.\"",
+            "source_ids": [
+              "S6"
+            ]
+          }
+        ]
+      },
+      "recent_moves": [
+        {
+          "date": "2026-05",
+          "text": "Sample. Launched a new merchant payments bundle.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "strengths": [
+        {
+          "text": "Sample. Long-standing bank relationships and switching costs.",
+          "source_ids": [
+            "S4"
+          ]
+        },
+        {
+          "text": "Sample. Direct links to all four operators.",
+          "source_ids": [
+            "S4"
+          ]
+        }
+      ],
+      "weaknesses": [
+        {
+          "text": "Sample. SMS-only; no OTT channels or cascades.",
+          "source_ids": [
+            "S4"
+          ]
+        },
+        {
+          "text": "Sample. Reviewers cite slow support.",
+          "source_ids": [
+            "S6"
+          ]
+        }
+      ],
+      "where_we_win": [
+        {
+          "text": "Sample. Offer banks an SMS+OTT cascade for non-critical notifications, cutting their volume on regulated SMS.",
+          "source_ids": [
+            "INT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "competitor-b",
+      "name": "Competitor B",
+      "type": "direct",
+      "tier": "Local — developer gateway",
+      "website": "competitor-b.example.com",
+      "one_liner": "Sample. A self-serve SMS API popular with SMEs, schools and ISPs.",
+      "threat": "medium",
+      "positioning": {
+        "quote": "Sample developer-friendly tagline.",
+        "quote_source_ids": [
+          "S7"
+        ],
+        "claims": [
+          {
+            "text": "Sample. Leads with ease of integration and published prices.",
+            "source_ids": [
+              "S7"
+            ]
+          }
+        ]
+      },
+      "segments": [
+        {
+          "text": "Sample. SMEs, education, NGOs.",
+          "source_ids": [
+            "S7"
+          ]
+        }
+      ],
+      "named_clients": [
+        {
+          "text": "Sample. No named enterprise clients found.",
+          "source_ids": [
+            "S7"
+          ]
+        }
+      ],
+      "channels": {
+        "sms": true,
+        "otp": true,
+        "masking": true,
+        "api": true,
+        "whatsapp": false,
+        "viber": false,
+        "telegram": false,
+        "messenger": false,
+        "crm": true
+      },
+      "features": [
+        {
+          "text": "Sample. REST API with SDKs and plugins for common CMS platforms.",
+          "source_ids": [
+            "S8"
+          ]
+        }
+      ],
+      "pricing": {
+        "model": "Published packages",
+        "claims": [
+          {
+            "text": "Sample. Prepaid bundles from 1,000 SMS.",
+            "source_ids": [
+              "S7"
+            ]
+          }
+        ]
+      },
+      "licence": {
+        "status": "Own enlistment",
+        "claims": [
+          {
+            "text": "Sample. Displays its enlistment certificate on the site.",
+            "source_ids": [
+              "S7"
+            ]
+          }
+        ]
+      },
+      "web_seo": {
+        "pagespeed_mobile": 78,
+        "pagespeed_desktop": 94,
+        "claims": [
+          {
+            "text": "Sample. Ranks for many 'bulk SMS' search terms; active blog.",
+            "source_ids": [
+              "S11"
+            ]
+          }
+        ]
+      },
+      "content_social": [
+        {
+          "text": "Sample. Regular tutorials and Facebook posts.",
+          "source_ids": [
+            "S7"
+          ]
+        }
+      ],
+      "reviews": {
+        "praise": [
+          {
+            "text": "Sample. \"Easy API, works in an afternoon.\"",
+            "source_ids": [
+              "S7"
+            ]
+          }
+        ],
+        "complaints": [
+          {
+            "text": "Sample. \"Delivery delays on promotional traffic.\"",
+            "source_ids": [
+              "S7"
+            ]
+          }
+        ]
+      },
+      "recent_moves": [
+        {
+          "date": "2026-08",
+          "text": "Sample. Added a WordPress plugin.",
+          "source_ids": [
+            "S8"
+          ]
+        }
+      ],
+      "strengths": [
+        {
+          "text": "Sample. Best-in-class developer experience locally.",
+          "source_ids": [
+            "S8"
+          ]
+        }
+      ],
+      "weaknesses": [
+        {
+          "text": "Sample. Little enterprise trust signalling.",
+          "source_ids": [
+            "S7"
+          ]
+        }
+      ],
+      "where_we_win": [
+        {
+          "text": "Sample. Enterprise SLAs and multichannel, which this player does not offer.",
+          "source_ids": [
+            "INT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "competitor-c",
+      "name": "Competitor C",
+      "type": "indirect",
+      "tier": "International CPaaS",
+      "website": "competitor-c.example.com",
+      "one_liner": "Sample. A global CPaaS that serves Bangladesh through a local partner.",
+      "threat": "medium",
+      "positioning": {
+        "quote": "Sample global omnichannel tagline.",
+        "quote_source_ids": [
+          "S9"
+        ],
+        "claims": [
+          {
+            "text": "Sample. Sells a full customer-engagement suite to multinationals.",
+            "source_ids": [
+              "S9"
+            ]
+          }
+        ]
+      },
+      "segments": [
+        {
+          "text": "Sample. Multinationals, large fintechs, global apps.",
+          "source_ids": [
+            "S9"
+          ]
+        }
+      ],
+      "named_clients": [
+        {
+          "text": "Sample. Global case studies; one Bangladesh case study.",
+          "source_ids": [
+            "S9"
+          ]
+        }
+      ],
+      "channels": {
+        "sms": true,
+        "otp": true,
+        "masking": true,
+        "api": true,
+        "whatsapp": true,
+        "viber": true,
+        "telegram": false,
+        "messenger": true,
+        "crm": true
+      },
+      "features": [
+        {
+          "text": "Sample. Omnichannel inbox, chatbots and journey builder.",
+          "source_ids": [
+            "S9"
+          ]
+        }
+      ],
+      "pricing": {
+        "model": "Enterprise quote",
+        "claims": [
+          {
+            "text": "Sample. Country-level SMS price list, OTT priced per conversation.",
+            "source_ids": [
+              "S9"
+            ]
+          }
+        ]
+      },
+      "licence": {
+        "status": "Via local partner",
+        "claims": [
+          {
+            "text": "Sample. Routes local traffic through a licensed partner.",
+            "source_ids": [
+              "S10"
+            ]
+          }
+        ]
+      },
+      "web_seo": {
+        "pagespeed_mobile": 61,
+        "pagespeed_desktop": 88,
+        "claims": [
+          {
+            "text": "Sample. Global domain authority; little Bangladesh-specific content.",
+            "source_ids": [
+              "S11"
+            ]
+          }
+        ]
+      },
+      "content_social": [
+        {
+          "text": "Sample. Large global content programme; no Bangla content.",
+          "source_ids": [
+            "S9"
+          ]
+        }
+      ],
+      "reviews": {
+        "praise": [
+          {
+            "text": "Sample. \"Powerful platform, many channels.\"",
+            "source_ids": [
+              "S9"
+            ]
+          }
+        ],
+        "complaints": [
+          {
+            "text": "Sample. \"Expensive and complex for local needs.\"",
+            "source_ids": [
+              "S9"
+            ]
+          }
+        ]
+      },
+      "recent_moves": [
+        {
+          "date": "2026-03",
+          "text": "Sample. Announced a new local partnership.",
+          "source_ids": [
+            "S10"
+          ]
+        }
+      ],
+      "strengths": [
+        {
+          "text": "Sample. Full multichannel suite and global brand.",
+          "source_ids": [
+            "S9"
+          ]
+        }
+      ],
+      "weaknesses": [
+        {
+          "text": "Sample. No own licence; local cascade order not tuned to Bangladesh OTT habits.",
+          "source_ids": [
+            "S10",
+            "S12"
+          ]
+        }
+      ],
+      "where_we_win": [
+        {
+          "text": "Sample. Same multichannel capability, but licensed locally and with a Bangladesh-specific cascade.",
+          "source_ids": [
+            "INT",
+            "S12"
+          ]
+        }
+      ]
+    }
+  ],
+  "long_tail": [
+    {
+      "name": "Competitor D",
+      "type": "Local aggregator",
+      "note": "Sample. Price-led bulk SMS packages.",
+      "source_ids": [
+        "S2"
+      ]
+    },
+    {
+      "name": "Competitor E",
+      "type": "Local aggregator",
+      "note": "Sample. Masking and OTP; SME focus.",
+      "source_ids": [
+        "S2"
+      ]
+    },
+    {
+      "name": "Competitor F",
+      "type": "International CPaaS",
+      "note": "Sample. Global API; needs a local route.",
+      "source_ids": [
+        "S9"
+      ]
+    }
+  ],
+  "matrix": {
+    "dimensions": [
+      {
+        "key": "licence",
+        "label": "Own licence"
+      },
+      {
+        "key": "operators",
+        "label": "Operator coverage"
+      },
+      {
+        "key": "channels",
+        "label": "Channel breadth"
+      },
+      {
+        "key": "enterprise",
+        "label": "Enterprise focus"
+      },
+      {
+        "key": "developer",
+        "label": "Developer experience"
+      },
+      {
+        "key": "pricing",
+        "label": "Price transparency"
+      },
+      {
+        "key": "web",
+        "label": "Web & SEO"
+      },
+      {
+        "key": "reputation",
+        "label": "Reviews"
+      }
+    ],
+    "rows": [
+      {
+        "name": "Example Co",
+        "is_us": true,
+        "scores": {
+          "licence": 5,
+          "operators": 4,
+          "channels": 5,
+          "enterprise": 4,
+          "developer": 2,
+          "pricing": 1,
+          "web": 2,
+          "reputation": 1
+        }
+      },
+      {
+        "name": "Competitor A",
+        "scores": {
+          "licence": 5,
+          "operators": 5,
+          "channels": 1,
+          "enterprise": 5,
+          "developer": 2,
+          "pricing": 1,
+          "web": 3,
+          "reputation": 4
+        }
+      },
+      {
+        "name": "Competitor B",
+        "scores": {
+          "licence": 5,
+          "operators": 4,
+          "channels": 1,
+          "enterprise": 2,
+          "developer": 5,
+          "pricing": 5,
+          "web": 5,
+          "reputation": 3
+        }
+      },
+      {
+        "name": "Competitor C",
+        "scores": {
+          "licence": 2,
+          "operators": 3,
+          "channels": 5,
+          "enterprise": 5,
+          "developer": 4,
+          "pricing": 3,
+          "web": 4,
+          "reputation": 3
+        }
+      }
+    ],
+    "scale_note": "1 = weak, 5 = strong. Scores are analyst judgements based on the cited evidence in each profile.",
+    "positioning": {
+      "x_label": "Enterprise focus",
+      "y_label": "Channel breadth",
+      "points": [
+        {
+          "name": "Example Co",
+          "x": 4,
+          "y": 5,
+          "is_us": true
+        },
+        {
+          "name": "Competitor A",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "name": "Competitor B",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "name": "Competitor C",
+          "x": 5,
+          "y": 4.6
+        }
+      ]
+    }
+  },
+  "opportunities": {
+    "working_for_them": [
+      {
+        "text": "Sample. Long bank relationships create switching costs that price cannot break.",
+        "source_ids": [
+          "S4"
+        ]
+      },
+      {
+        "text": "Sample. Published prices and good docs win self-serve SME traffic.",
+        "source_ids": [
+          "S7"
+        ]
+      }
+    ],
+    "weak_spots": [
+      {
+        "text": "Sample. Almost no local player offers OTT channels or cascades.",
+        "source_ids": [
+          "S4",
+          "S7"
+        ]
+      },
+      {
+        "text": "Sample. Support speed is the most common complaint in reviews.",
+        "source_ids": [
+          "S6"
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "title": "Licensed local multichannel",
+        "text": "Sample. No licensed local aggregator sells SMS + OTT cascades to enterprises.",
+        "source_ids": [
+          "S4",
+          "S7",
+          "S10"
+        ]
+      },
+      {
+        "title": "Bangladesh-tuned cascades",
+        "text": "Sample. Global providers default to WhatsApp-first, which does not match local usage.",
+        "source_ids": [
+          "S12"
+        ]
+      },
+      {
+        "title": "Enterprise service levels",
+        "text": "Sample. Reviewers ask for faster support and clearer SLAs.",
+        "source_ids": [
+          "S6"
+        ]
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "R1",
+      "title": "Publish a Bangla landing page for banks",
+      "description": "Sample. One page explaining cascades for bank notifications, with a cost example marked illustrative.",
+      "impact": 4,
+      "effort": 2,
+      "horizon": "0–3 months",
+      "source_ids": [
+        "S4",
+        "S12"
+      ]
+    },
+    {
+      "id": "R2",
+      "title": "Win two reference enterprise clients",
+      "description": "Sample. Target MFS and e-commerce, where OTP volume is high and reliability matters most.",
+      "impact": 5,
+      "effort": 4,
+      "horizon": "0–6 months",
+      "source_ids": [
+        "INT"
+      ]
+    },
+    {
+      "id": "R3",
+      "title": "Ship public API docs",
+      "description": "Sample. Close the developer-experience gap with the self-serve players.",
+      "impact": 3,
+      "effort": 2,
+      "horizon": "0–3 months",
+      "source_ids": [
+        "S8"
+      ]
+    },
+    {
+      "id": "R4",
+      "title": "Add Messenger / imo to the cascade",
+      "description": "Sample. Match the cascade to how Bangladeshis actually message.",
+      "impact": 5,
+      "effort": 5,
+      "horizon": "6–12 months",
+      "source_ids": [
+        "S12"
+      ]
+    },
+    {
+      "id": "R5",
+      "title": "Publish an SLA and support promise",
+      "description": "Sample. Turn the most common competitor complaint into Example Co's pitch.",
+      "impact": 4,
+      "effort": 1,
+      "horizon": "0–3 months",
+      "source_ids": [
+        "S6"
+      ]
+    },
+    {
+      "id": "R6",
+      "title": "Sign the Teletalk agreement",
+      "description": "Sample. Complete four-operator coverage before enterprise tenders.",
+      "impact": 3,
+      "effort": 3,
+      "horizon": "3–6 months",
+      "source_ids": [
+        "INT"
+      ]
+    }
+  ],
+  "methodology": {
+    "text": "Sample. Desk research using public websites, regulator publications, news coverage, review sites and Google PageSpeed Insights. Every factual claim cites a source and access date. Scores in the comparison matrix are analyst judgements based on that evidence.",
+    "limits": [
+      "No paid traffic or backlink data was used; SEO findings are technical and on-page.",
+      "Some review platforms block automated access; gaps are stated rather than estimated.",
+      "Internal Example Co facts are cited to the internal business profile."
+    ]
+  }
+}

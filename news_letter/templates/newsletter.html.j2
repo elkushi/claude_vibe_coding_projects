@@ -1,0 +1,173 @@
+{%- set k = b.colors -%}
+{%- set font = b.font_stack | safe -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>{{ c.subject }}</title>
+<!-- Inter loads in Apple Mail / iOS; Gmail ignores web fonts and falls back to the system sans stack -->
+<link data-premailer="ignore" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0; background: {{ k.surface }}; }
+  .wrap { width: 100%; background: {{ k.surface }}; }
+  .container { width: 600px; max-width: 600px; background: {{ k.white }}; border: 1px solid {{ k.border }}; }
+  .pad { padding-left: 32px; padding-right: 32px; }
+  .nav { background: {{ k.ink }}; padding: 16px 32px; }
+  .wordmark { font-family: {{ font }}; font-size: 20px; line-height: 24px; font-weight: 800; letter-spacing: -0.5px; color: {{ k.white }}; }
+  .nav-meta { font-family: {{ font }}; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: {{ k.caption }}; }
+  .eyebrow { font-family: {{ font }}; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: {{ k.brand_red }}; }
+  h1 { font-family: {{ font }}; font-size: 34px; line-height: 38px; font-weight: 800; letter-spacing: -1.2px; color: {{ k.ink }}; margin: 10px 0 14px 0; }
+  h1 em { font-style: normal; color: {{ k.brand_red }}; }
+  h2 { font-family: {{ font }}; font-size: 24px; line-height: 30px; font-weight: 800; letter-spacing: -0.6px; color: {{ k.ink }}; margin: 0 0 12px 0; }
+  p { font-family: {{ font }}; font-size: 16px; line-height: 26px; font-weight: 400; color: {{ k.text }}; margin: 0 0 16px 0; }
+  a { color: {{ k.ink }}; font-weight: 600; text-decoration: underline; }
+  strong { font-weight: 700; color: {{ k.ink }}; }
+  .lede { font-size: 18px; line-height: 28px; color: {{ k.secondary }}; }
+  .card { background: {{ k.surface }}; border: 1px solid {{ k.border }}; border-radius: {{ b.shape.radius_card }}px; }
+  .tldr { padding: 20px 24px; }
+  .tldr li { font-family: {{ font }}; font-size: 15px; line-height: 23px; color: {{ k.text }}; margin-bottom: 6px; }
+  .stat { background: {{ k.white }}; border: 1px solid {{ k.border }}; border-radius: {{ b.shape.radius_card }}px; padding: 18px 10px; text-align: center; }
+  .emoji-tile { display: inline-block; width: 40px; height: 40px; line-height: 40px; font-size: 20px; text-align: center; background: {{ k.tint }}; border-radius: 12px; margin-bottom: 8px; }
+  .stat-value { font-family: {{ font }}; font-size: 28px; line-height: 32px; font-weight: 800; letter-spacing: -1px; color: {{ k.ink }}; }
+  .stat-label { font-family: {{ font }}; font-size: 13px; line-height: 18px; color: {{ k.secondary }}; padding-top: 4px; }
+  .caption { font-family: {{ font }}; font-size: 12px; line-height: 18px; color: {{ k.caption }}; }
+  .chart-card { background: {{ k.white }}; border: 1px solid {{ k.border }}; border-radius: {{ b.shape.radius_card }}px; padding: 12px; }
+  .callout { background: {{ k.ink }}; border-radius: {{ b.shape.radius_card }}px; padding: 22px 24px; }
+  .callout p { color: {{ k.white }}; font-size: 18px; line-height: 26px; font-weight: 700; letter-spacing: -0.3px; margin: 0; }
+  .btn { background: {{ k.brand_red }}; border-radius: {{ b.shape.radius_button }}px; }
+  .btn a { display: inline-block; font-family: {{ font }}; font-size: 16px; line-height: 20px; font-weight: 600; color: {{ k.white }}; text-decoration: none; padding: 14px 26px; }
+  .sources li { font-family: {{ font }}; font-size: 12px; line-height: 19px; color: {{ k.secondary }}; margin-bottom: 4px; }
+  .sources a { color: {{ k.secondary }}; font-weight: 400; }
+  .footer { background: {{ k.ink }}; padding: 18px 32px; }
+  .footer-l { font-family: {{ font }}; font-size: 12px; line-height: 18px; color: {{ k.caption }}; }
+  .footer-r { font-family: {{ font }}; font-size: 12px; line-height: 18px; color: {{ k.caption }}; }
+  img { border: 0; display: block; outline: none; text-decoration: none; }
+  @media only screen and (max-width: 620px) {
+    .container { width: 100% !important; border: 0 !important; }
+    .pad { padding-left: 18px !important; padding-right: 18px !important; }
+    .nav, .footer { padding-left: 18px !important; padding-right: 18px !important; }
+    h1 { font-size: 28px !important; line-height: 32px !important; }
+    .stat-cell { display: block !important; width: 100% !important; padding: 0 0 8px 0 !important; }
+    .footer-l, .footer-r { display: block !important; text-align: left !important; }
+  }
+</style>
+</head>
+<body>
+<!-- preheader: shown in the inbox list, hidden in the body -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">{{ c.preview_text }}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+<table role="presentation" class="wrap" width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr><td align="center" style="padding: 24px 0;">
+<table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0">
+
+  <!-- top nav: always ink -->
+  <tr><td class="nav">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td width="40" valign="middle"><img src="{{ img('logo.png') }}" alt="{{ b.newsletter_name }}" width="36" height="36" style="width:36px;height:36px;"></td>
+      <td valign="middle" class="wordmark" style="padding-left: 10px;">{{ b.newsletter_name }}</td>
+      <td valign="middle" align="right" class="nav-meta">{% if c.issue_number %}Issue {{ c.issue_number }} &middot; {% endif %}{{ c.date }}</td>
+    </tr></table>
+  </td></tr>
+
+  <!-- hero image -->
+  {% if c.hero %}
+  <tr><td><img src="{{ img(c.hero.image) }}" alt="{{ c.hero.alt }}" width="600" style="width:100%;max-width:600px;height:auto;"></td></tr>
+  {% endif %}
+
+  <!-- title -->
+  <tr><td class="pad" style="padding-top: 32px;">
+    <div class="eyebrow">{{ c.kicker or c.topic }}{% if c.read_minutes %} &middot; {{ c.read_minutes }} min read{% endif %}</div>
+    <h1>{{ (c.title or c.subject) | safe }}</h1>
+    {% if c.intro %}<p class="lede">{{ c.intro | safe }}</p>{% endif %}
+  </td></tr>
+
+  <!-- TL;DR -->
+  {% if c.tldr %}
+  <tr><td class="pad" style="padding-top: 4px; padding-bottom: 24px;">
+    <div class="card tldr">
+      <div class="eyebrow" style="margin-bottom: 8px;">The short version</div>
+      <ul style="margin:0;padding-left:18px;">{% for item in c.tldr %}<li>{{ item | safe }}</li>{% endfor %}</ul>
+    </div>
+  </td></tr>
+  {% endif %}
+
+  <!-- stat row -->
+  {% if c.stats %}
+  <tr><td class="pad" style="padding-bottom: 32px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    {% for s in c.stats %}
+      <td class="stat-cell" width="{{ (100 / c.stats|length)|int }}%" valign="top" style="padding: 0 {{ 0 if loop.last else 8 }}px 0 0;">
+        <div class="stat">
+          {% if s.emoji %}<div class="emoji-tile">{{ s.emoji }}</div>{% endif %}
+          <div class="stat-value">{{ s.value }}</div>
+          <div class="stat-label">{{ s.label }}</div>
+          {% if s.source %}<div class="caption">[{{ s.source }}]</div>{% endif %}
+        </div>
+      </td>
+    {% endfor %}
+    </tr></table>
+  </td></tr>
+  {% endif %}
+
+  <!-- sections -->
+  {% for sec in c.sections %}
+  <tr><td class="pad" style="padding-bottom: 8px;">
+    {% if sec.eyebrow %}<div class="eyebrow" style="margin-bottom: 6px;">{{ sec.eyebrow }}</div>{% endif %}
+    <h2>{{ sec.heading }}</h2>
+    {% for para in sec.paragraphs %}<p>{{ para | safe }}</p>{% endfor %}
+  </td></tr>
+  {% if sec.chart %}{% set ch = charts[sec.chart] %}
+  <tr><td class="pad" style="padding-bottom: 28px;">
+    <div class="chart-card">
+      <img src="{{ img('chart_' ~ ch.id ~ '.png') }}" alt="{{ ch.alt }}" width="510" style="width:100%;max-width:510px;height:auto;">
+    </div>
+    <div class="caption" style="padding-top: 6px;">{% if ch.caption %}{{ ch.caption }} &middot; {% endif %}{% if ch.source is iterable and ch.source is not string %}Sources [{{ ch.source | join(', ') }}]{% elif ch.source %}Source [{{ ch.source }}]{% endif %}</div>
+  </td></tr>
+  {% endif %}
+  {% if sec.callout %}
+  <tr><td class="pad" style="padding-bottom: 28px;">
+    <div class="callout"><p>{{ sec.callout | safe }}</p></div>
+  </td></tr>
+  {% endif %}
+  {% endfor %}
+
+  <!-- closing -->
+  {% if c.closing %}
+  <tr><td class="pad" style="padding-bottom: 8px;"><p>{{ c.closing | safe }}</p></td></tr>
+  {% endif %}
+
+  <!-- CTA: the one red action -->
+  {% if cta and cta.enabled != false and cta.url %}
+  <tr><td class="pad" style="padding-top: 8px; padding-bottom: 32px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td class="btn"><a href="{{ cta.url }}">{{ cta.label }}</a></td>
+    </tr></table>
+  </td></tr>
+  {% endif %}
+
+  <!-- sources -->
+  {% if c.sources %}
+  <tr><td class="pad"><div style="border-top: 1px solid {{ k.border }};"></div></td></tr>
+  <tr><td class="pad" style="padding-top: 20px; padding-bottom: 24px;">
+    <div class="eyebrow" style="color: {{ k.secondary }}; margin-bottom: 8px;">Sources</div>
+    <ol class="sources" style="margin:0;padding-left:20px;">
+    {% for s in c.sources %}<li value="{{ s.id }}"><a href="{{ s.url }}">{{ s.title }}</a>{% if s.publisher %} &middot; {{ s.publisher }}{% endif %}{% if s.date %} &middot; {{ s.date }}{% endif %}</li>{% endfor %}
+    </ol>
+  </td></tr>
+  {% endif %}
+
+  <!-- footer: ink bar, like the brand sheet -->
+  <tr><td class="footer">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td class="footer-l"><strong style="color: {{ k.white }};">{{ b.newsletter_name }}</strong> &middot; {{ b.footer_left }}</td>
+      <td class="footer-r" align="right">{{ b.footer_right }}</td>
+    </tr></table>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

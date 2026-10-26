@@ -1,0 +1,243 @@
+{#- Branded competitor report. Rendered by tools/render_report.py.
+    Context: r (report JSON), brand, charts {name: path}, srcnum {source_id: n}, brand_css, root. -#}
+{%- macro cite(ids) -%}
+{%- if ids -%}&#8288;<sup class="cite">{% for i in ids %}<a href="#src-{{ i }}">{{ srcnum[i] }}</a>{% if not loop.last %},{% endif %}{% endfor %}</sup>{%- endif -%}
+{%- endmacro -%}
+{%- macro claims(items, cls="") -%}
+{%- if items -%}<ul class="{{ cls }}">{% for c in items %}<li>{{ c.text }}{{ cite(c.source_ids) }}</li>{% endfor %}</ul>{%- endif -%}
+{%- endmacro -%}
+{%- macro meter(n) -%}<span class="meter">{% for i in range(5) %}<i class="{{ 'on' if i < n else '' }}"></i>{% endfor %}</span>{%- endmacro -%}
+{%- macro section_head(num, short, title) -%}
+<header class="section-head"><div class="kicker">{{ "%02d"|format(num) }} · {{ short }}</div><h1 id="{{ short|lower|replace(' ', '-')|replace('&', 'and') }}" data-short="{{ short }}">{{ title }}</h1></header>
+{%- endmacro -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ r.meta.title }} — {{ r.meta.subtitle }}</title>
+<style>{{ brand_css|safe }}</style>
+<link rel="stylesheet" href="{{ root }}/templates/report.css">
+</head>
+<body>
+
+{# ── Cover ─────────────────────────────────────────── #}
+<div class="cover">
+  <div class="key" style="width:170mm;height:170mm;top:-62mm;right:-58mm;border:2px solid rgba(255,255,255,.14);"></div>
+  <div class="key" style="width:82mm;height:82mm;bottom:-30mm;left:-26mm;background:rgba(255,255,255,.07);"></div>
+  <div class="key" style="width:40mm;height:40mm;top:58mm;right:62mm;border:2px solid rgba(255,255,255,.10);"></div>
+  <img class="logo" src="{{ root }}/{{ brand.logo.reversed }}" alt="{{ company }}">
+  {% if r.meta.is_sample %}<div class="sample-flag">Sample layout</div>{% endif %}
+  <div class="body">
+    <div class="kicker">{{ r.meta.market }} · {{ r.meta.region }}</div>
+    <h1 class="title">{{ r.meta.title }}</h1>
+    <div class="subtitle">{{ r.meta.subtitle }}</div>
+  </div>
+  <div class="foot">
+    <div><b>{{ r.meta.run_date_long }}</b>Research date</div>
+    <div><b>{{ r.meta.prepared_for }}</b>Prepared for</div>
+    <div><b>{{ r.meta.prepared_by }}</b>Prepared by</div>
+    <div style="text-align:right;"><b>Confidential</b>Internal and investor use</div>
+  </div>
+</div>
+
+{# ── Contents ──────────────────────────────────────── #}
+<section class="chapter">
+  <div class="runlogo"><img src="{{ root }}/{{ brand.logo.primary }}" alt="{{ company }}"></div>
+  <p class="confidential-string">{{ r.meta.confidentiality }}</p>
+  <header class="section-head"><div class="kicker">Report</div><h1 data-short="Contents">Contents</h1></header>
+  {% if r.meta.is_sample %}<p class="lede">{{ r.meta.version }}</p>{% endif %}
+  <ol class="toc">
+    <li><span class="n">01</span><a href="#executive-summary">Executive summary</a></li>
+    <li><span class="n">02</span><a href="#market-overview">Market overview</a></li>
+    <li><span class="n">03</span><a href="#competitor-profiles">Competitor profiles</a></li>
+    {% for c in r.competitors %}<li class="sub"><a href="#{{ c.id }}">{{ c.name }}</a></li>{% endfor %}
+    <li><span class="n">04</span><a href="#comparison-matrix">Comparison matrix</a></li>
+    <li><span class="n">05</span><a href="#opportunities-and-gaps">Opportunities &amp; gaps</a></li>
+    <li><span class="n">06</span><a href="#recommendations">Recommendations</a></li>
+    <li><span class="n">07</span><a href="#sources">Sources &amp; methodology</a></li>
+  </ol>
+</section>
+
+{# ── 01 Executive summary ──────────────────────────── #}
+{% set es = r.executive_summary %}
+<section class="chapter">
+  {{ section_head(1, "Executive summary", es.headline) }}
+  <div class="tiles">
+    {% for k in es.key_numbers %}<div class="tile"><div class="v">{{ k.value }}</div><div class="l">{{ k.label }}{{ cite(k.source_ids) }}</div></div>{% endfor %}
+  </div>
+  <h2>Key findings</h2>
+  <ol class="findings">{% for f in es.findings %}<li>{{ f.text }}{{ cite(f.source_ids) }}</li>{% endfor %}</ol>
+  <div class="callout"><div class="key"></div><div class="kicker">Bottom line</div><p>{{ es.bottom_line }}</p></div>
+</section>
+
+{# ── 02 Market overview ────────────────────────────── #}
+{% set mo = r.market_overview %}
+<section class="chapter">
+  {{ section_head(2, "Market overview", "Market overview") }}
+  {% for p in mo.intro %}<p class="{{ 'lede' if loop.first else '' }}">{{ p.text }}{{ cite(p.source_ids) }}</p>{% endfor %}
+  <div class="tiles three">
+    {% for k in mo.stats %}<div class="tile"><div class="v">{{ k.value }}</div><div class="l">{{ k.label }}{{ cite(k.source_ids) }}</div></div>{% endfor %}
+  </div>
+  {% if charts.get("operators") %}
+  <div class="figure">
+    <div class="title">Mobile subscribers by operator</div>
+    <img src="{{ charts.operators }}" alt="Mobile subscribers by operator">
+    <div class="caption">{{ mo.operators_unit }}. Source{{ cite(mo.operators_source_ids) }}</div>
+  </div>
+  {% endif %}
+  <h2>Regulation</h2>
+  <div class="cards">
+    {% for g in mo.regulation %}<div class="card tint"><h3>{{ g.title }}</h3><p>{{ g.text }}{{ cite(g.source_ids) }}</p></div>{% endfor %}
+  </div>
+  {% if mo.ott %}<h2>Messaging apps</h2>{% for p in mo.ott %}<p>{{ p.text }}{{ cite(p.source_ids) }}</p>{% endfor %}{% endif %}
+</section>
+
+{# ── 03 Competitor profiles ────────────────────────── #}
+{% set channel_cols = [("sms","SMS"),("otp","OTP"),("masking","Masking"),("api","API"),("whatsapp","WhatsApp"),("viber","Viber"),("telegram","Telegram"),("messenger","Messenger"),("crm","CRM integr.")] %}
+<section class="chapter">
+  {{ section_head(3, "Competitor profiles", "Competitor profiles") }}
+  <p class="lede">{{ r.competitors|selectattr("type","equalto","direct")|list|length }} direct and {{ r.competitors|selectattr("type","equalto","indirect")|list|length }} indirect competitors profiled in depth, plus {{ r.long_tail|length }} more players summarised at the end of this section.</p>
+  <h2>Channel coverage at a glance</h2>
+  <table class="channels">
+    <thead><tr><th>Company</th><th>Licence</th>{% for k, l in channel_cols %}<th style="text-align:center">{{ l }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% if r.us %}<tr class="us"><td>{{ r.us.name }}</td><td>{{ r.us.licence }}</td>{% for k, l in channel_cols %}<td class="{{ 'yes' if r.us.channels[k] else 'no' }}"><span class="dot {{ 'on' if r.us.channels[k] else 'off' }}"></span></td>{% endfor %}</tr>{% endif %}
+    {% for c in r.competitors %}<tr><td><a href="#{{ c.id }}">{{ c.name }}</a></td><td>{{ c.licence.status }}</td>{% for k, l in channel_cols %}<td class="{{ 'yes' if c.channels[k] else 'no' }}"><span class="dot {{ 'on' if c.channels[k] else 'off' }}"></span></td>{% endfor %}</tr>{% endfor %}
+    </tbody>
+  </table>
+  <p class="small muted"><span class="dot on"></span> offered &nbsp;&nbsp; <span class="dot off"></span> not offered or not found. Evidence is cited in each profile.</p>
+</section>
+
+{% for c in r.competitors %}
+<section class="profile" id="{{ c.id }}">
+  <div class="profile-head">
+    <div class="key"></div>
+    <div class="kicker">{{ "Direct" if c.type == "direct" else "Indirect" }} competitor · {{ c.tier }}</div>
+    <h2>{{ c.name }}</h2>
+    <p class="one-liner">{{ c.one_liner }}</p>
+    <div class="chips">
+      <span class="chip threat-{{ c.threat }}">Threat: {{ c.threat }}</span>
+      <span class="chip">{{ c.licence.status }}</span>
+      <span class="chip">{{ c.pricing.model }}</span>
+      <span class="chip">{{ c.website }}</span>
+    </div>
+  </div>
+
+  <h4>Positioning</h4>
+  {% if c.positioning.quote %}<blockquote>“{{ c.positioning.quote }}”{{ cite(c.positioning.quote_source_ids) }}</blockquote>{% endif %}
+  {{ claims(c.positioning.claims) }}
+
+  <div class="two-col">
+    <div><h4>Target segments</h4>{{ claims(c.segments) }}<h4>Named clients</h4>{{ claims(c.named_clients) }}</div>
+    <div><h4>Products &amp; features</h4>{{ claims(c.features) }}<h4>Pricing</h4>{{ claims(c.pricing.claims) }}</div>
+  </div>
+
+  <div class="two-col">
+    <div><h4>Licence status</h4>{{ claims(c.licence.claims) }}
+      <h4>Website &amp; SEO</h4>
+      {% if c.web_seo.pagespeed_mobile is not none %}<p class="small"><b>PageSpeed</b> mobile {{ c.web_seo.pagespeed_mobile }} · desktop {{ c.web_seo.pagespeed_desktop }}</p>{% endif %}
+      {{ claims(c.web_seo.claims) }}</div>
+    <div><h4>Content &amp; social</h4>{{ claims(c.content_social) }}
+      <h4>Recent moves</h4>
+      <ul class="timeline">{% for m in c.recent_moves %}<li><span class="d">{{ m.date }}</span><span>{{ m.text }}{{ cite(m.source_ids) }}</span></li>{% endfor %}</ul></div>
+  </div>
+
+  <h4>What customers say</h4>
+  <div class="two-col">
+    <div class="panel good"><h4>Praise</h4>{{ claims(c.reviews.praise) }}</div>
+    <div class="panel bad"><h4>Complaints</h4>{{ claims(c.reviews.complaints) }}</div>
+  </div>
+
+  <div class="two-col" style="margin-top:4mm;">
+    <div><h4>Strengths vs {{ company }}</h4>{{ claims(c.strengths) }}</div>
+    <div><h4>Weaknesses vs {{ company }}</h4>{{ claims(c.weaknesses) }}</div>
+  </div>
+  <div class="panel win"><h4>Where {{ company }} can win</h4>{{ claims(c.where_we_win) }}</div>
+</section>
+{% endfor %}
+
+{% if r.long_tail %}
+<section class="profile">
+  <h2 style="margin-top:0">Rest of the market</h2>
+  <p>Players found during research that were not profiled in depth.</p>
+  <table>
+    <thead><tr><th>Company</th><th>Type</th><th>Note</th></tr></thead>
+    <tbody>{% for l in r.long_tail %}<tr><td><b>{{ l.name }}</b></td><td>{{ l.type }}</td><td>{{ l.note }}{{ cite(l.source_ids) }}</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+{% endif %}
+
+{# ── 04 Comparison matrix (landscape) ──────────────── #}
+{% set mx = r.matrix %}
+<section class="chapter wide">
+  {{ section_head(4, "Comparison matrix", "How " ~ company ~ " compares") }}
+  <table class="matrix">
+    <thead><tr><th>Company</th>{% for d in mx.dimensions %}<th>{{ d.label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in mx.rows %}<tr class="{{ 'us' if row.get('is_us') else '' }}"><td class="name">{{ row.name }}</td>{% for d in mx.dimensions %}{% set v = row.scores[d.key] %}<td class="s{{ v }}">{{ v }}</td>{% endfor %}</tr>{% endfor %}
+    </tbody>
+  </table>
+  <div class="legend">Score&nbsp; {% for i in range(1, 6) %}<span class="sw s{{ i }}">{{ i }}</span>{% endfor %}&nbsp; {{ mx.scale_note }}</div>
+</section>
+
+{# ── 05 Opportunities & gaps ───────────────────────── #}
+{% set op = r.opportunities %}
+<section class="chapter">
+  {{ section_head(5, "Opportunities & gaps", "Opportunities & gaps") }}
+  {% if charts.get("positioning") %}
+  <div class="figure">
+    <div class="title">Market positioning</div>
+    <img src="{{ charts.positioning }}" alt="Positioning map">
+    <div class="caption">Positions use the matching scores from the comparison matrix (1–5).</div>
+  </div>
+  {% endif %}
+  <div class="two-col">
+    <div><h2>What's working for them</h2>{{ claims(op.working_for_them) }}</div>
+    <div><h2>Where they're weak</h2>{{ claims(op.weak_spots) }}</div>
+  </div>
+  <h2>Gaps in the market</h2>
+  <div class="cards three">
+    {% for g in op.gaps %}<div class="card tint"><h3>{{ g.title }}</h3><p>{{ g.text }}{{ cite(g.source_ids) }}</p></div>{% endfor %}
+  </div>
+  {% if charts.get("pagespeed") %}
+  <div class="figure">
+    <div class="title">Website performance</div>
+    <img src="{{ charts.pagespeed }}" alt="PageSpeed scores">
+    <div class="caption">Google PageSpeed Insights, mobile, homepage. 90+ is good, under 50 is poor.</div>
+  </div>
+  {% endif %}
+</section>
+
+{# ── 06 Recommendations ────────────────────────────── #}
+<section class="chapter">
+  {{ section_head(6, "Recommendations", "Recommendations") }}
+  <p class="lede">Ranked by impact against effort. Quick wins — high impact, low effort — come first.</p>
+  {% if charts.get("impact_effort") %}
+  <div class="figure"><img src="{{ charts.impact_effort }}" alt="Impact and effort matrix"></div>
+  {% endif %}
+  <table class="recs">
+    <thead><tr><th></th><th>Recommendation</th><th>Impact</th><th>Effort</th><th>Horizon</th></tr></thead>
+    <tbody>
+    {% for x in recs_sorted %}<tr><td class="id"><span>{{ x.id }}</span></td>
+      <td class="t"><b>{{ x.title }}</b>{{ x.description }}{{ cite(x.source_ids) }}{% if x.impact >= 4 and x.effort <= 2 %}<div class="quick">Quick win</div>{% endif %}</td>
+      <td>{{ meter(x.impact) }}</td><td>{{ meter(x.effort) }}</td><td class="small">{{ x.horizon }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{# ── 07 Sources & methodology ──────────────────────── #}
+<section class="chapter">
+  {{ section_head(7, "Sources", "Sources & methodology") }}
+  <h2 style="margin-top:0">Methodology</h2>
+  <p>{{ r.methodology.text }}</p>
+  <ul>{% for l in r.methodology.limits %}<li>{{ l }}</li>{% endfor %}</ul>
+  <h2>Sources</h2>
+  <ol class="sources">
+  {% for s in r.sources %}<li id="src-{{ s.id }}"><span class="n">{{ loop.index }}</span><span><span class="t">{{ s.title }}</span> — {{ s.publisher }}.
+    {% if s.url %}<a class="u" href="{{ s.url }}">{{ s.url }}</a>{% else %}<span class="u">Internal document, no public URL.</span>{% endif %}
+    <span class="a">Accessed {{ s.accessed }}.</span></span></li>{% endfor %}
+  </ol>
+</section>
+
+</body>
+</html>

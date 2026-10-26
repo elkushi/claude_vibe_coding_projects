@@ -1,0 +1,9 @@
+python-dotenv
+requests
+jinja2
+weasyprint
+matplotlib
+pypdf
+jsonschema
+beautifulsoup4
+lxml

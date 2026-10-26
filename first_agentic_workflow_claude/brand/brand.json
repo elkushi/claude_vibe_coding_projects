@@ -1,0 +1,119 @@
+{
+  "_source": "brand/guidelines/Ritorica Brand Guidelines - Standalone.html (v1.0, 2026), unpacked with tools/extract_brand_bundle.py",
+  "name": "Ritorica",
+
+  "logo": {
+    "primary": "brand/logo/ritorica-logo-blue.png",
+    "reversed": "brand/logo/ritorica-logo-white.svg",
+    "primary_note": "Blue #4072D6 on white or tint. Default.",
+    "reversed_note": "White on brand blue or deep blue only.",
+    "clear_space": "Height of the 'R' on every side",
+    "min_size_print_mm": 8,
+    "placement": "Top-left or centred",
+    "rules": ["Never redraw, recolour, stretch or outline", "Never on a photo without a solid panel behind it"]
+  },
+
+  "colors": {
+    "primary": "#4072D6",
+    "deep": "#0E47BA",
+    "navy": "#15213F",
+    "light": "#6B96E8",
+    "tint": "#EEF3FC",
+    "border": "#D6E0F5",
+    "border_light": "#EEF2FB",
+    "page_bg": "#F5F7FC",
+    "white": "#FFFFFF",
+    "text": "#15213F",
+    "text_secondary": "#41506E",
+    "text_muted": "#7787A3",
+    "on_blue_text": "#FFFFFF",
+    "on_blue_secondary": "#C6D6F7",
+    "success": "#27AE60",
+    "success_pale": "#E8F8EF",
+    "warning": "#F2C94C",
+    "warning_text": "#B7950B",
+    "warning_pale": "#FEF9E7",
+    "danger": "#EB5757",
+    "danger_pale": "#FDECEA",
+    "gradient_primary": ["#4072D6", "#0E47BA", 135],
+    "balance": "Mostly white and tint, one strong block of blue, deep blue and navy as anchors (approx. 5 : 3 : 1.2 : 0.8)"
+  },
+
+  "chart_palette": {
+    "_rule": "Blues do the work. Semantic colours only where they mean something. No native channel/app colours.",
+    "us_highlight": "#4072D6",
+    "series": ["#0E47BA", "#4072D6", "#6B96E8", "#15213F", "#9DB8EE", "#41506E", "#C6D6F7", "#7787A3"],
+    "competitor_neutral": "#B8C4DA",
+    "sequential": ["#EEF3FC", "#C6D6F7", "#6B96E8", "#4072D6", "#0E47BA"],
+    "positive": "#27AE60",
+    "negative": "#EB5757",
+    "gridline": "#D6E0F5"
+  },
+
+  "fonts": {
+    "display": {"family": "Gilroy", "fallback": ["Manrope", "Inter", "sans-serif"]},
+    "body": {"family": "Gilroy", "fallback": ["Inter", "sans-serif"]},
+    "mono": {"family": "JetBrains Mono", "fallback": ["Courier New", "monospace"]},
+    "files": {
+      "300": "brand/fonts/Gilroy-Light.ttf",
+      "400": "brand/fonts/Gilroy-Regular.ttf",
+      "500": "brand/fonts/Gilroy-Medium.ttf",
+      "600": "brand/fonts/Gilroy-SemiBold.ttf",
+      "700": "brand/fonts/Gilroy-Bold.ttf",
+      "800": "brand/fonts/Gilroy-ExtraBold.ttf",
+      "900": "brand/fonts/Gilroy-Black.ttf"
+    },
+    "licence_note": "Gilroy is licensed (self-hosted). Decision 2026-10-19: embed Gilroy in report PDFs (internal/investor distribution). If the licence turns out not to allow PDF embedding, switch display/body family to 'Manrope' (guideline fallback)."
+  },
+
+  "typography": {
+    "_note": "Web scale from the guidelines, mapped to print points for an A4 report.",
+    "headline": {"weight": 800, "tracking_em": -0.03, "line_height": 1.05},
+    "subhead": {"weight": 700, "line_height": 1.25},
+    "body": {"weight": 400, "line_height": 1.6},
+    "label": {"weight": 700, "uppercase": true, "tracking_em": 0.2},
+    "print_sizes_pt": {"cover_title": 44, "h1": 28, "h2": 18, "h3": 13, "body": 10, "small": 8.5, "label": 7.5}
+  },
+
+  "shape": {
+    "radius_card_px": 28,
+    "radius_chip_px": 12,
+    "shadow_tint": "rgba(14, 71, 186, 0.08)",
+    "shadow_rule": "Soft and blue-tinted, never neutral grey"
+  },
+
+  "motif": {
+    "name": "Tilted key",
+    "shape": "Rounded square, corner radius 22% of width",
+    "rotation_deg": -12,
+    "styles": ["2px outline at 10-20% white", "soft fill at 6-8% white"],
+    "count_per_layout": "2-3, different sizes",
+    "placement": "Bleeding off corners and edges, behind content. Never a solid block over content."
+  },
+
+  "icons": {
+    "style": "White line glyph on brand-blue rounded tile",
+    "spot": "brand/icons/spot/",
+    "channel": "brand/icons/channel/",
+    "rule": "Channel icons use the Ritorica tile, never native app colours"
+  },
+
+  "voice": {
+    "summary": "Plain, specific, calm. The engineer who has seen this problem before.",
+    "rules": [
+      "Lead with the number; no hype, no exclamation marks",
+      "Every claim backed by a number or source",
+      "Explain how it works; don't push",
+      "Short sentences: two to four per paragraph, one idea each",
+      "Mark modelled numbers as illustrative"
+    ],
+    "say": "It isn't a discount. It's the order you send in.",
+    "not": "Unlock game-changing omnichannel synergies today!"
+  },
+
+  "layout_rules": {
+    "do": ["Use real numbers; mark modelled ones as illustrative", "Give the logo room", "One idea per layout", "Text contrast at least 4.5:1"],
+    "dont": ["Recolour or stretch the logo", "Native app colours for channel icons", "Emoji or heavy gradients", "Name competitors or show client logos without approval"],
+    "exceptions": ["Competitor analysis reports: naming competitors approved by the brand owner (2026-10-19). Mark these reports 'Confidential — internal and investor use'."]
+  }
+}
