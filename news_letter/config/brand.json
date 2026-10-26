@@ -1,11 +1,11 @@
 {
   "_source": "Example brand for demonstration. Replace every value with your own.",
-  "newsletter_name": "Field Notes",
+  "newsletter_name": "Margin Notes",
   "tagline": "One topic, explained with sources.",
-  "footer_left": "Field Notes · example newsletter",
+  "footer_left": "Margin Notes · example newsletter",
   "footer_right": "Every number has a source.",
-  "author": "The Field Notes team",
-  "from_name": "Field Notes",
+  "author": "The Margin Notes team",
+  "from_name": "Margin Notes",
   "default_to": "",
   "logo_file": "brand_assests/derived/logo.png",
   "cta": {

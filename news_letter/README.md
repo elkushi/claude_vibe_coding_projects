@@ -1,6 +1,6 @@
 # Newsletter Workflow
 
-A Claude Code workflow that turns *"newsletter about <topic>"* into a researched, sourced HTML email with charts and an AI hero image, branded and delivered as a **Gmail draft** for review. It ships with a made-up example brand, Field Notes, so you can see the whole pipeline before rebranding it.
+A Claude Code workflow that turns *"newsletter about <topic>"* into a researched, sourced HTML email with charts and an AI hero image, branded and delivered as a **Gmail draft** for review. It ships with a made-up example brand, Margin Notes, so you can see the whole pipeline before rebranding it.
 
 - **Workflow (SOP):** [workflows/newsletter.md](workflows/newsletter.md)
 - **Cheat sheet:** [docs/newsletter-cheatsheet.html](docs/newsletter-cheatsheet.html)

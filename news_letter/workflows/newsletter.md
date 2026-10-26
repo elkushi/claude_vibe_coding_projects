@@ -4,7 +4,7 @@
 Turn "newsletter about <topic>" into a researched, sourced HTML email with charts and an AI hero image, branded from `config/brand.json` and delivered as a Gmail draft for review.
 
 ## Brand (source of truth)
-`config/brand.json` holds the brand. The repo ships a made-up example, Field Notes. Key rules the pipeline enforces:
+`config/brand.json` holds the brand. The repo ships a made-up example, Margin Notes. Key rules the pipeline enforces:
 - **Colours:** ink `#0F0F1A` and greys for structure; brand red `#DC2626` **only** for the one main action (CTA), eyebrows and key emphasis (`<em>` in the title, chart `highlight`). Never blue, purple, indigo, teal, violet, fuchsia or pink. `check_newsletter.py` fails on those.
 - **Type:** Inter (400/600/700/800), tight display tracking. Gmail falls back to the system sans.
 - **Logo:** `brand_assests/derived/logo.png`. Never recolour, stretch or redraw it.
